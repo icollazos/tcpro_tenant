@@ -1,0 +1,5 @@
+root: {
+  dt: datatables,
+  grafo: grafo,
+  g1: g1
+}

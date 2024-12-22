@@ -1,0 +1,209 @@
+{
+    "root": {
+        "2": {
+            "pri": {
+                "titulo": "Principal",
+                "items": {
+                    "item": {
+                        "alias": "Items",
+                        "f": "dt",
+                        "v": "v_aaa_item"
+                    },
+                    "texto": {
+                        "alias": "Textos",
+                        "f": "dt",
+                        "v": "v_aaa_texto"
+                    },
+                    "variable": {
+                        "alias": "Variables",
+                        "f": "dt",
+                        "v": "v_aaa_variable"
+                    },
+                    "valor": {
+                        "alias": "Valores",
+                        "f": "dt",
+                        "v": "v_aaa_valor"
+                    }
+                }
+            },
+            "con": {
+                "titulo": "Diccionarios",
+                "items": {
+                    "dicvalor": {
+                        "alias": "Evidencias L\u00e9xicas",
+                        "f": "dt",
+                        "v": "v_aaa_dicvalor"
+                    }
+                }
+            },
+            "rep": {
+                "titulo": "Reportes",
+                "items": {
+                    "alertas": {
+                        "alias": "Alertas",
+                        "f": "link",
+                        "v": "alertas.html"
+                    },
+                    "dashboard": {
+                        "alias": "Tablero de Control",
+                        "f": "dashboard",
+                        "v": "v_aaa_texto"
+                    },
+                    "torta": {
+                        "alias": "Grafico de torta",
+                        "f": "g1",
+                        "v": "v_aaa_proyecto",
+                        "tipo": "pie"
+                    },
+                    "barras": {
+                        "alias": "Grafico de barras",
+                        "f": "g1",
+                        "v": "v_aaa_proyecto",
+                        "tipo": "bar"
+                    },
+                    "columnas": {
+                        "alias": "Grafico de columnas",
+                        "f": "g1",
+                        "v": "v_aaa_proyecto",
+                        "tipo": "column"
+                    },
+                    "nube": {
+                        "alias": "Burbujas",
+                        "f": "gNube",
+                        "v": "v_aaa_textovalor"
+                    },
+                    "arbol": {
+                        "alias": "Arbol de Categor\u00edas",
+                        "f": "gArbol",
+                        "v": "v_aaa_proyecto"
+                    }
+                }
+            },
+            "adm": {
+                "titulo": "Administraci\u00f3n",
+                "items": {
+                    "usuario": {
+                        "alias": "Usuarios",
+                        "f": "dt",
+                        "v": "v_adm_usuario"
+                    },
+                    "apikey": {
+                        "alias": "API Keys",
+                        "f": "dt",
+                        "v": "v_aaa_apikey"
+                    }
+                }
+            },
+            "esp": {
+                "titulo": "An\u00e1lisis",
+                "items": {
+                    "robot": {
+                        "alias": "Etiquetador",
+                        "f": "link",
+                        "v": "etiquetador.html"
+                    },
+                    "chatbot": {
+                        "alias": "Chatbot",
+                        "f": "link",
+                        "v": "chatbot.html"
+                    }
+                }
+            }
+        },
+        "3": {
+            "pri": {
+                "titulo": "Principal",
+                "items": {
+                    "proyecto": {
+                        "alias": "Trimestres",
+                        "f": "dt",
+                        "v": "v_aaa_proyecto"
+                    },
+                    "seguimiento": {
+                        "alias": "Seguimientos",
+                        "f": "dt",
+                        "v": "v_aaa_seguimiento"
+                    },
+                    "item": {
+                        "alias": "Items",
+                        "f": "dt",
+                        "v": "v_aaa_item"
+                    },
+                    "texto": {
+                        "alias": "Textos",
+                        "f": "dt",
+                        "v": "v_aaa_texto"
+                    },
+                    "variable": {
+                        "alias": "Variables",
+                        "f": "dt",
+                        "v": "v_aaa_variable"
+                    },
+                    "valor": {
+                        "alias": "Valores",
+                        "f": "dt",
+                        "v": "v_aaa_valor"
+                    }
+                }
+            },
+            "con": {
+                "titulo": "Diccionarios",
+                "items": {
+                    "dicvalor": {
+                        "alias": "Evidencias L\u00e9xicas",
+                        "f": "dt",
+                        "v": "v_aaa_dicvalor"
+                    }
+                }
+            },
+            "rep": {
+                "titulo": "Reportes",
+                "items": {
+                    "torta": {
+                        "alias": "Grafico de torta",
+                        "f": "g1",
+                        "v": "v_aaa_proyecto",
+                        "tipo": "pie"
+                    },
+                    "barras": {
+                        "alias": "Grafico de barras",
+                        "f": "g1",
+                        "v": "v_aaa_proyecto",
+                        "tipo": "bar"
+                    },
+                    "columnas": {
+                        "alias": "Grafico de columnas",
+                        "f": "g1",
+                        "v": "v_aaa_proyecto",
+                        "tipo": "column"
+                    },
+                    "nube": {
+                        "alias": "Burbujas",
+                        "f": "gNube",
+                        "v": "v_aaa_textovalor"
+                    }
+                }
+            },
+            "adm": {
+                "titulo": "Administraci\u00f3n",
+                "items": {
+                    "usuario": {
+                        "alias": "Usuarios",
+                        "f": "dt",
+                        "v": "v_adm_usuario"
+                    }
+                }
+            },
+            "esp": {
+                "titulo": "An\u00e1lisis",
+                "items": {
+                    "robot": {
+                        "alias": "Etiquetador",
+                        "f": "link",
+                        "v": "etiquetador.html"
+                    }
+                }
+            }
+        }
+    }
+}

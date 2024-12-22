@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <script src="head.js" defer></script>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+ <style>
+    #grafico {
+      width: 100%;
+      height: 800px;
+      border: 1px solid #ccc;
+      padding: 0px;
+    }
+    .bubble {
+      stroke: #fff;
+      stroke-width: 2px;
+    }
+    text {
+      font-family: Arial;
+      font-size: 12px; 
+      text-anchor: left;
+      fill: #000; 
+      background: #123
+    }
+    .node text {
+      font-family: Arial;
+      font-size: 12px; 
+      fill: #000; 
+      pointer-events: none; /* Evitar interacciones con el texto */
+    }
+    .slider {
+      margin-top: 20px;
+    }
+    .link {
+      fill: none;
+      stroke: #ccc;
+      stroke-width: 2px;
+    }
+    #tree-container {
+  width: 100%;
+  height: calc(100vh - 100px); /* Ajusta según sea necesario */
+}
+
+  </style>
+   <style>
+        .node circle {
+            fill: #69b3a2;
+            stroke: white;
+            stroke-width: 2px;
+        }
+
+        .node--leaf circle {
+            fill: #404080;
+        }
+
+        .node text {
+            font: 12px sans-serif;
+        }
+
+        .link {
+            fill: none;
+            stroke: #ccc;
+            stroke-width: 1.5px;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 8px;
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+    </style>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand text-center" href="#" style="width: 300px;"><span id="titulo"></span></a>
+    <ul class="navbar-nav bg-dark" id="menu"></ul>
+
+            <ul class="navbar-nav ms-auto"> <!-- Clase ms-auto para empujar hacia la derecha -->
+            <li class="nav-item">
+                <span class="nav-link text-light" id="usuarioNombre"></span> <!-- Aquí se mostrará el nombre del usuario -->
+            </li>
+            <li class="nav-item">
+                <a class="nav-link btn btn-danger btn-sm" href="apiCustom/borrarSesion.php">Cerrar Sesión</a>
+            </li>
+        </ul>
+
+  </nav>
+  <div id="app">
+    <div class="hidden container-fluid d-flex justify-content-center align-items-center vh-100">
+     <div id="report-container" class="container-fluid h-100">
+      <div class="row h-100">
+        <div class="col-12" id="salida" style="padding-top: 24px;">
+          <!--
+         <div id="controls">
+          <input type="text" class="search-box" placeholder="Buscar nodo...">
+          <button onclick="expandAll()">Expandir Todo</button>
+          <button onclick="collapseAll()">Colapsar Todo</button>
+          <button onclick="resetZoom()">Reset Zoom</button>
+          <div class="node-info">
+            <h3>Información del Nodo</h3>
+            <div id="node-details"></div>
+          </div>
+        </div>
+        -->
+        <div id="tree-container" style="width: 100%;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="funciones.js"></script>
+<script src="gDatos.js"></script>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    main();
+  });
+
+  async function main() {
+    const urlParams = new URLSearchParams(window.location.search);
+    var vista = urlParams.get('v');
+
+    const alias = await cargarYAML('YAML_alias'); 
+    const yaml_datatables = await cargarYAML('YAML_datatables'); 
+
+    const yaml_funcionesGenerales = await cargarYAML('YAML_funcionesGenerales'); 
+    var yaml_menu = await cargarYAML('YAML_menu'); 
+    yaml_menu = yaml_menu.root;
+
+    const session = await datosUsuario();
+    const nivel=session.id_perfil_usuario;
+    document.getElementById('usuarioNombre').innerHTML="USUARIO: "+session.usuario;
+    document.getElementById('titulo').innerHTML="Árbol de cateegorías"; 
+    crearMenu(yaml_menu[nivel]); 
+
+
+    console.log("-------------------------------------------------------------------------------------------------------")
+    var datosArbol = await cargarDatosArbol();
+    console.log("DatosArbol", datosArbol)
+
+    const sampleData = [ { seguimiento: "S1", variable: "R1", valor: "V1", lemapar: "AAA" }, ];
+
+    //generaArbol(sampleData);
+    generaArbol(datosArbol);
+  }
+
+function generaArbol(data) {
+    const root = { name: "Banco Central de Chile", children: [] };
+
+    data.forEach(item => { 
+        let seguimientoNode = findOrCreateNode(root.children, item.seguimiento);
+        let variableNode = findOrCreateNode(seguimientoNode.children, item.variable);
+        let valorNode = findOrCreateNode(variableNode.children, item.valor);
+        valorNode.children = valorNode.children || [];
+        valorNode.children.push({ name: item.lemapar });
+    });
+
+    const treeLayout = d3.tree().size([window.innerHeight - 100, window.innerWidth - 400]); // Ajuste responsivo
+    const nodes = d3.hierarchy(root);
+    treeLayout(nodes);
+
+    // Limpiar el contenedor antes de agregar un nuevo SVG
+    d3.select("#tree-container").selectAll("*").remove();
+    
+    const svg = d3.select("#tree-container")
+                  .append("svg")
+                  .attr("width", "100%")
+                  .attr("height", window.innerHeight - 100); // Ajuste responsivo
+
+    // Crear un generador de curvas
+    const diagonal = d3.linkHorizontal()
+                      .x(d => d.y)
+                      .y(d => d.x);
+
+    // Dibujar los enlaces como curvas
+    svg.selectAll('.link')
+       .data(nodes.links())
+       .enter()
+       .append('path')
+       .attr('class', 'link')
+       .attr('d', diagonal)
+       .style("fill", "none")
+       .style("stroke", "#ccc")
+       .style("stroke-width", 2);
+
+    // Dibujar los nodos
+    const node = svg.selectAll('.node')
+                    .data(nodes.descendants())
+                    .enter()
+                    .append('g')
+                    .attr('class', 'node')
+                    // Desplazar el nodo a la izquierda para que la línea conecte al extremo izquierdo
+                    .attr('transform', d => `translate(${d.y - 5},${d.x})`);
+
+    node.append('circle')
+        .attr('r', 5)
+        .attr('class', 'bubble');
+
+    node.append('text')
+        .attr('dy', '.35em') // Ajustar verticalmente el texto
+        .attr('x', 10) // Desplazar el texto a la derecha
+        .attr('text-anchor', 'start') // Alinear el texto a la izquierda
+        .text(d => d.data.name);
+}
+// Función auxiliar para encontrar o crear un nodo
+function findOrCreateNode(children, name) {
+    let node = children.find(child => child.name === name);
+    if (!node) {
+        node = { name: name, children: [] };
+        children.push(node);
+    }
+    return node;
+}
+
+
+</script>
+
+
+</html>

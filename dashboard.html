@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <script src="head.js" defer></script>
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <script src="https://code.highcharts.com/modules/series-label.js"></script>
+  <script src="https://code.highcharts.com/modules/exporting.js"></script>
+  <script src="https://code.highcharts.com/modules/export-data.js"></script>
+  <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand text-center" href="#" style="width: 300px;"><span id="titulo"></span></a>
+    <ul class="navbar-nav bg-dark" id="menu"></ul>
+        <ul class="navbar-nav ms-auto"> <!-- Clase ms-auto para empujar hacia la derecha -->
+            <li class="nav-item">
+                <span class="nav-link text-light" id="usuarioNombre"></span> <!-- Aquí se mostrará el nombre del usuario -->
+            </li>
+            <li class="nav-item">
+                <a class="nav-link btn btn-danger btn-sm" href="apiCustom/borrarSesion.php">Cerrar Sesión</a>
+            </li>
+        </ul>
+  </nav>
+  <div id="app">
+    <div class="hidden container-fluid d-flex justify-content-center align-items-center vh-100">
+     <div id="report-container" class="container-fluid h-100">
+      <div class="row h-100">
+        <div class="col-2" style="padding-top: 24px;">
+
+         <!--
+         <label>Proyecto</label>
+         <select class="form-control" id="idproyecto" onchange="cargarSeguimientos(this.value)">
+          <option>Seleccione...</option>
+        </select>
+        <label>Seguimiento</label>
+        <select class="form-control" id="idseguimiento" onchange="cargarVariables(this.value)">
+          <option>Seleccione...</option>
+        </select>
+      -->
+      <!--
+      <div id="filtrosInternos">
+        <div id="v_aaa_fechaInicial" data-interno="true">
+          <label>Fecha Inicial</label>
+          <input type="date" class="form-control arg" id="fechaInicial" onchange="cargarDatos();" onblur="cargarDatos();"/>
+        </div>
+        <div id="v_aaa_fechaFinal" data-interno="true">
+          <label>Fecha Final</label>
+          <input type="date" class="form-control arg" id="fechaFinal" onchange="cargarDatos();" onblur="cargarDatos();"/>
+        </div>
+        <div id="v_aaa_palabra" data-interno="true">
+          <label>Buscar por palabras</label>
+          <input type="text" class="form-control arg" id="palabra" onchange="cargarDatos();" onblur="cargarDatos();"/>
+        </div>
+        <div id="v_aaa_excepto" data-interno="true">
+          <label>Excepto</label>
+          <input type="text" class="form-control arg" id="excepto" onchange="cargarDatos();" onblur="cargarDatos();"/>
+        </div>
+        <label>Palabras más frecuentes</label>
+        <select class="form-control" id="palabrasFrecuentes" onchange="cargarDatos()">
+          <option value="">Seleccione...</option>
+        </select>
+        <hr>
+      </div>
+  -->
+    </div>
+
+    <div class="col-8">
+      <div class="row">
+        <div class="col-3" id="salida" style="padding-top: 24px;">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Productos</h5>
+              <h6 class="card-subtitle mb-2 text-body-secondary">Resumen general</h6>
+              <table class="table table-dark"><thead><th>Valor</th><th>Cuenta</th></thead><tbody id="tabla_productos"></tbody></table>
+            </div>
+          </div>
+        </div>
+        <div class="col-3" id="salida" style="padding-top: 24px;">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Personas</h5>
+              <h6 class="card-subtitle mb-2 text-body-secondary">Resumen general</h6>
+              <table class="table table-dark"><thead><th>Valor</th><th>Cuenta</th></thead><tbody id="tabla_personas"></tbody></table>
+            </div>
+          </div>
+        </div>
+        <div class="col-3" id="salida" style="padding-top: 24px;">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Temáticas</h5>
+              <h6 class="card-subtitle mb-2 text-body-secondary">Resumen general</h6>
+              <table class="table table-dark"><thead><th>Valor</th><th>Cuenta</th></thead><tbody id="tabla_tematicas"></tbody></table>
+            </div>
+          </div>
+        </div>
+        <div class="col-3" id="salida" style="padding-top: 24px;">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Proveedores</h5>
+              <h6 class="card-subtitle mb-2 text-body-secondary">Resumen general</h6>
+              <table class="table table-dark"><thead><th>Valor</th><th>Cuenta</th></thead><tbody id="tabla_proveedores"></tbody></table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="row">
+        <div class="col-12" id="salida" style="padding-top: 24px;">
+          <div class="card">
+            <div class="card-body">        
+              <h5 class="card-title">Histórico</h5>
+              <div id="chart" class="col-12" style="padding: 50px; height: 500px; width: 100%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+    </div>
+
+
+  </div>
+</div>
+</div>
+</div>
+</div>
+
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="funciones.js"></script>
+<script src="gDatos.js"></script>
+
+<script>
+  main();
+  async function main() {
+    const urlParams = new URLSearchParams(window.location.search);
+    var vista = urlParams.get('v');
+    vista="v_aaa_textovalor";
+
+    const alias = await cargarYAML('YAML_alias'); 
+    const yaml_datatables = await cargarYAML('YAML_datatables'); 
+
+    const yaml_funcionesGenerales = await cargarYAML('YAML_funcionesGenerales'); 
+    var yaml_menu = await cargarYAML('YAML_menu'); 
+    yaml_menu = yaml_menu.root;
+    console.log("Menu:",yaml_menu);
+
+   // var palabrasFrecuentes=await cargarFrecuentes();
+
+    const session = await datosUsuario();
+    const nivel=session.id_perfil_usuario;
+    document.getElementById('usuarioNombre').innerHTML="USUARIO: "+session.usuario;
+    document.getElementById('titulo').innerHTML="Tablero General"; 
+    crearMenu(yaml_menu[nivel]); 
+
+    cargarDatos();
+    cargarHistorico();
+
+  }
+
+async function cargarHistorico() {
+    console.log("Cargar Historico");
+    const url = 'apiCustom/dashboard.php';
+    const params = {
+      buscar: 'historico',
+    };
+    
+    console.log("Parámetros a enviar:", params);
+    
+    try {
+      const data = await getData(url, params);  
+      console.log("DATA---------------------------", data);
+      
+      // Llamar a la función para crear el gráfico
+      crearGraficoLineas(data);
+            
+    } catch (error) {
+      console.error("Error al cargar seguimientos:", error);
+    }
+}
+
+function crearGraficoLineas(data) {
+    // Transformar los datos para Highcharts
+    const semanas = data.map(d => d.semana);
+    const totales = data.map(d => d.total);
+
+    // Crear el gráfico
+    Highcharts.chart('chart', {
+        chart: {
+            type: 'line',
+        },
+        title: {
+            text: 'Total por Semana',
+        },
+        xAxis: {
+            title: {
+                text: 'Semana',
+            },
+            categories: semanas,
+        },
+        yAxis: {
+            title: {
+                text: 'Total',
+            },
+        },
+        series: [{
+            name: 'Total',
+            data: totales,
+            marker: {
+                enabled: true,
+                radius: 5,
+            },
+        }],
+        tooltip: {
+            shared: true,
+            valueSuffix: ' unidades',
+        },
+    });
+}
+
+
+
+async function cargarDatos() {
+    console.log("Cargar Datos");
+    const url = 'apiCustom/dashboard.php';
+    const params = {
+      buscar: 'datos',
+    };
+    console.log("Parámetros a enviar:", params);
+    try {
+      const data = await getData(url, params);  
+      console.log("DATA---------------------------", data);
+      agregarDatosATabla(data['datos_productos'], 'tabla_productos');
+      agregarDatosATabla(data['datos_personas'], 'tabla_personas');
+      agregarDatosATabla(data['datos_tematicas'], 'tabla_tematicas');
+      agregarDatosATabla(data['datos_proveedores'], 'tabla_proveedores');
+      /*
+      new DataTable('#tabla_personas');
+      new DataTable('#tabla_tematicas');
+      new DataTable('#tabla_productos');
+      new DataTable('#tabla_proveedores');
+      */
+    } catch (error) {
+      console.error("Error al cargar seguimientos:", error);
+    }
+}
+
+
+function agregarDatosATabla(datos, tablaId) {
+    const tbody = document.getElementById(tablaId);
+    tbody.innerHTML = '';
+    if (datos && Array.isArray(datos) && datos.length > 0) {
+        datos.forEach(item => {
+            const fila = document.createElement('tr'); // Crea una nueva fila
+            const celdaValor = document.createElement('td');
+            celdaValor.textContent = item.descriptor; // Asigna el valor del descriptor
+            const celdaCuenta = document.createElement('td');
+            celdaCuenta.textContent = item.cuenta; // Asigna el valor de cuenta
+            fila.appendChild(celdaValor);
+            fila.appendChild(celdaCuenta);
+            tbody.appendChild(fila);
+        });
+    } else {
+        const fila = document.createElement('tr');
+        const celdaMensaje = document.createElement('td');
+        celdaMensaje.colSpan = 2; // Ocupa ambas columnas
+        celdaMensaje.textContent = 'No hay datos disponibles';
+        fila.appendChild(celdaMensaje);
+        tbody.appendChild(fila);
+    }
+}
+
+
+
+  function llenarSelect(id, data) {
+    const select = document.getElementById(id); 
+    select.innerHTML = '';
+    const option = document.createElement('option'); 
+    option.value = 0; 
+    option.textContent = "Seleccione..."; 
+    select.appendChild(option); 
+    data.forEach(item => {
+      const option = document.createElement('option'); 
+      option.value = item.id; 
+      option.textContent = item.descriptor; 
+      select.appendChild(option); 
+    });
+  }
+
+
+
+  async function cargarFrecuentes(){
+    l("Cargar Proyectos");
+    const url = 'apiCustom/etiquetador_2.php';
+    const params={
+      buscar:'palabrasFrecuentes'
+    };
+    const data = await getData(url, params); 
+    console.log("Frecuentes: ",data);
+    llenarSelect('palabrasFrecuentes', data)
+  }
+
+
+    async function agregarDatosATabla2(data,tabla) {
+      console.log("AGREGANDO DATOS A TABLA", data);
+      const headerRow = document.getElementById(tabla).getElementsByTagName('thead')[0];
+      headerRow.classList.add('table-info');
+
+      const tablaBody = document.getElementById(tabla).getElementsByTagName('tbody')[0];
+      tablaBody.innerHTML = '';
+    const registrosAgregados = new Set(); // Conjunto para rastrear registros únicos
+
+    // Recorremos cada objeto en el array
+    for (const key in data) {
+      const item = data[key];
+      //l(item);
+
+        // Procesamos el caso donde hay un solo objeto (por ejemplo, 123 o 130)
+        const registro = `${item.idtexto}-${item.descriptortexto}-${item.idvalor}-${item.descriptorvalor}-${item.puntaje}-${item.roh}`;
+        const row = tablaBody.insertRow();
+        row.insertCell(0).innerText = item.idtexto; // Columna oculta
+        row.insertCell(1).innerText = item.descriptortexto; // Texto
+        const accionCell = row.insertCell(2); // Nueva celda para la acción
+
+        // Botón Etiquetar
+        const botonEtiquetar = document.createElement('button');
+        botonEtiquetar.className = 'btn btn-success btn-sm'; // Clase Bootstrap para estilo
+        botonEtiquetar.innerText = 'Etiquetar';
+        botonEtiquetar.onclick = function() {
+            const idTexto = item.idtexto; // Obtener ID del texto del registro actual
+            const idvariable = document.getElementById('idvariable').value; // Obtener valor del select
+            history.replaceState(null, '', window.location.pathname); // Esto mantiene la URL actual sin cambios
+
+            window.location.href = `crearEtiqueta.html?idTexto=${idTexto}&idvariable=${idvariable}`;
+          };
+
+        // Botón Eliminar
+        const botonEliminar = document.createElement('button');
+        botonEliminar.className = 'btn btn-danger btn-sm'; // Clase Bootstrap para estilo
+        botonEliminar.innerText = 'Eliminar';
+        
+        // Cambiar el onclick para llamar a confirmarEliminacion con el ID del registro
+        botonEliminar.onclick = function() {
+            confirmarEliminacion(item); // Pasar el objeto completo o solo el ID según tu implementación
+          };
+
+        accionCell.appendChild(botonEtiquetar); // Agregar el botón a la celda
+        accionCell.appendChild(botonEliminar); // Agregar el botón a la celda
+      }
+    }
+
+
+    
+
+
+// Función para confirmar eliminación
+function confirmarEliminacion(item) {
+  const modalBody = document.getElementById('modalConfirmacionBody');
+  modalBody.innerHTML = ''; 
+  const p = document.createElement('p');
+  p.textContent = `¿Estás seguro de que deseas eliminar el registro con ID: ${item.id}?`;
+  modalBody.appendChild(p);
+
+  const modal = new bootstrap.Modal(document.getElementById('modalConfirmacion'));
+  modal.show();
+
+  document.getElementById('btnConfirmarEliminar').onclick = function() {
+    eliminarRegistro(item.id); 
+    modal.hide(); 
+  };
+}
+
+// Resto de tu código...
+
+
+// Función de ejemplo para manejar la acción del botón "Etiquetar"
+
+
+async function eliminarRegistro(id) {
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const vistaActual = urlParams.get('v'); 
+    l(vistaActual);
+    const response = await fetch('api/eliminarRegistro.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: id,
+        vistaActual: 'aaa_textovalor' 
+      }),
+    });
+    if (!response.ok) {
+      throw new Error('Error en la eliminación del registro');
+    }
+    const result = await response.json();
+    console.log('Registro eliminado:', result);
+    var argumentos={ vista:vistaActual }
+    var datos= await cargarDatos(argumentos);
+      //main();
+      //agregarDatosATabla(datos);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
+  function verDetalles(item) {
+    const modalBody = document.getElementById('modalDetallesBody');
+    modalBody.innerHTML = ''; 
+    const table = document.createElement('table');
+    table.classList.add('table', 'table-bordered');     
+    const tbody = document.createElement('tbody');    
+    for (const key in item) {
+      if (item.hasOwnProperty(key)) {
+        const row = document.createElement('tr');
+        const cellKey = document.createElement('td');
+        cellKey.textContent = key.charAt(0).toUpperCase() + key.slice(1); 
+        row.appendChild(cellKey);
+        const cellValue = document.createElement('td');
+        cellValue.textContent = item[key]; 
+        row.appendChild(cellValue);
+        tbody.appendChild(row);
+      }
+    }    
+    table.appendChild(tbody);    
+    modalBody.appendChild(table);    
+    const modal = new bootstrap.Modal(document.getElementById('modalDetalles'));
+    modal.show();
+  }
+
+
+
+</script>
+
+</html>

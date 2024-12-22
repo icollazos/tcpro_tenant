@@ -1,0 +1,31 @@
+FROM php:7.4-fpm-alpine
+
+# Instalar Apache y dependencias
+RUN apk add --no-cache apache2 apache2-proxy fcgi postgresql-client postgresql-dev && \
+    docker-php-ext-install pdo pdo_pgsql pgsql
+
+# Crear carpeta de sesiones con permisos adecuados
+RUN mkdir -p /var/www/html/sessions && chmod 777 /var/www/html/sessions
+
+# Copiar la configuración personalizada de PHP (si existe)
+COPY ./config/php.ini /usr/local/etc/php/conf.d/custom.ini
+
+# Copiar el código fuente
+COPY . /var/www/html/
+
+# Ajustar DocumentRoot y habilitar módulos en Apache
+RUN sed -i 's!/var/www/localhost/htdocs!/var/www/html!g' /etc/apache2/httpd.conf && \
+    echo 'LoadModule rewrite_module modules/mod_rewrite.so' >> /etc/apache2/httpd.conf && \
+    echo 'LoadModule proxy_module modules/mod_proxy.so' >> /etc/apache2/httpd.conf && \
+    echo 'LoadModule proxy_fcgi_module modules/mod_proxy_fcgi.so' >> /etc/apache2/httpd.conf && \
+    echo 'ProxyPassMatch "^/(.*\.php)$" "fcgi://127.0.0.1:9000/var/www/html/$1"' > /etc/apache2/conf.d/fpm.conf && \
+    sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/httpd.conf
+
+# Ajustar índices (en caso de necesitar)
+RUN echo "DirectoryIndex index.php index.html" >> /etc/apache2/conf.d/directoryindex.conf
+
+# Exponer el puerto 80
+EXPOSE 80
+
+# Iniciar PHP-FPM y Apache en primer plano
+CMD ["sh", "-c", "php-fpm & httpd -DFOREGROUND"]

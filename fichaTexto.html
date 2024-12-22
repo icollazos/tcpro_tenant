@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <script src="head.js" defer></script>
+</head>
+
+<body onload="main()">
+
+
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand text-center" href="#" style="width: 300px;"><span id="titulo"></span></a>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav bg-dark" id="menu"></ul>
+      <ul class="navbar-nav ms-auto"> <!-- Clase ms-auto para empujar hacia la derecha -->
+        <li class="nav-item">
+          <span class="nav-link text-light" id="usuarioNombre"></span> <!-- Aquí se mostrará el nombre del usuario -->
+        </li>
+        <li class="nav-item">
+          <a class="nav-link btn btn-danger btn-sm" href="apiCustom/borrarSesion.php">Cerrar Sesión</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <div id="app">
+    <div class="hidden container-fluid d-flex justify-content-center align-items-center vh-100">
+     <div id="report-container" class="container-fluid h-100">
+      <div class="row h-100">
+        <div class="col-10" id="salida" style="padding-top: 24px;">
+         <div class="row">
+          <div class="col-md-6 mx-auto">
+           <h2>Ficha detalle</h2>
+           <table id="tablaDetalle" class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Clave</th>
+                <th>Valor</th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+    
+    <h2>Etiquetas</h2>
+<table id="tablaetiquetas" class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Variable</th>
+            <th>Valor</th>
+            <th>
+              Puntaje <span title="Valor que suma la relevancia de todas las evidencias lingüísticas asociadas a cada valor en los textos etiquetados con éste. Un puntaje muy alto indica que el texto posee  muchas palabras y pares de palabras que apuntan a ese valor y que, probablemente, esas evidencias son palabras especialmente relevantes en el documento.">(*)</span>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Las filas se llenarán aquí -->
+    </tbody>
+</table>
+
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="funciones.js"></script>
+<script type="text/javascript" src="dt.js"></script>
+
+<script>
+  main();
+  async function main() {
+    console.log("----------------------------------------------------------------------------------");
+    const urlParams = new URLSearchParams(window.location.search);
+    var vista = urlParams.get('v');
+
+
+    const alias = await cargarYAML('YAML_alias'); 
+    const yaml_datatables = await cargarYAML('YAML_datatables'); 
+
+    const yaml_funcionesGenerales = await cargarYAML('YAML_funcionesGenerales'); 
+    var yaml_menu = await cargarYAML('YAML_menu'); 
+    yaml_menu = yaml_menu.root;
+
+    const session = await datosUsuario();
+    const nivel=session.id_perfil_usuario;
+    document.getElementById('usuarioNombre').innerHTML="USUARIO: "+session.usuario;
+    document.getElementById('titulo').innerHTML=alias[vista]; 
+    crearMenu(yaml_menu[nivel], session); 
+    var datos= await cargarDatosDetalle();
+  }
+
+    $(document).ready(function(){
+        $('[data-toggle="tooltip"]').tooltip(); 
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    });
+
+
+
+</script>
+</html>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.2/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+

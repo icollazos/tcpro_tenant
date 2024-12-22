@@ -1,0 +1,220 @@
+{
+    "root": {
+        "aaa_apikey": {
+            "descriptor": {
+                "tipo": "texto",
+                "alias": "Descriptor"
+            }
+        },
+        "aaa_proyecto": {
+            "descriptor": {
+                "tipo": "texto",
+                "alias": "Descriptor"
+            }
+        },
+        "aaa_seguimiento": {
+            "sec_1": {
+                "tipo": "seccion",
+                "titulo": "Descripcion general"
+            },
+            "descriptor": {
+                "tipo": "texto",
+                "alias": "Descriptor"
+            },
+            "sec_2": {
+                "tipo": "seccion",
+                "titulo": "Arbol de Jerarqu\u00edas"
+            },
+            "idaaa_proyecto": {
+                "tipo": "sel",
+                "alias": "Proyecto",
+                "origen": "aaa_proyecto",
+                "padre": false,
+                "hijo": "aaa_seguimiento"
+            }
+        },
+        "aaa_item": {
+            "descriptor": {
+                "tipo": "texto",
+                "alias": "Descriptor"
+            },
+            "idaaa_tipoitem": {
+                "tipo": "sel",
+                "alias": "Tipo de Item",
+                "origen": "aaa_tipoitem",
+                "padre": false,
+                "hijo": false
+            },
+            "idaaa_seguimiento": {
+                "tipo": "sel",
+                "alias": "Seguimiento",
+                "origen": "aaa_seguimiento",
+                "padre": false,
+                "hijo": false
+            },
+            "idaaa_esalerta": {
+                "tipo": "sel",
+                "alias": "Es alerta",
+                "origen": "aaa_esalerta",
+                "padre": false,
+                "hijo": false
+            },
+            "query": {
+                "tipo": "texto",
+                "alias": "Query"
+            }
+        },
+        "aaa_variable": {
+            "descriptor": {
+                "tipo": "texto",
+                "alias": "Descriptor"
+            },
+            "idaaa_tipovariable": {
+                "tipo": "sel",
+                "alias": "Tipo de Variable",
+                "origen": "aaa_tipovariable",
+                "padre": false,
+                "hijo": false
+            }
+        },
+        "aaa_valor": {
+            "descriptor": {
+                "tipo": "texto",
+                "alias": "Descriptor"
+            },
+            "idaaa_variable": {
+                "tipo": "sel",
+                "alias": "Variable",
+                "origen": "aaa_variable",
+                "padre": "aaa_tipovariable",
+                "hijo": false
+            }
+        },
+        "aaa_textovalor": {
+            "descriptor": {
+                "tipo": "textarea",
+                "alias": "Descriptor"
+            },
+            "idaaa_proyecto": {
+                "tipo": "sel",
+                "alias": "Proyecto",
+                "origen": "aaa_proyecto",
+                "padre": false,
+                "hijo": "aaa_seguimiento",
+                "cadena": [
+                    "idaaa_seguimiento",
+                    "idaaa_item",
+                    "idaaa_texto"
+                ]
+            },
+            "idaaa_seguimiento": {
+                "tipo": "sel",
+                "alias": "Seguimiento",
+                "origen": "aaa_seguimiento",
+                "padre": "aaa_proyecto",
+                "hijo": "aaa_item",
+                "cadena": [
+                    "idaaa_item",
+                    "idaaa_texto"
+                ]
+            },
+            "idaaa_item": {
+                "tipo": "sel",
+                "alias": "Item",
+                "origen": "aaa_item",
+                "padre": "aaa_seguimiento",
+                "hijo": "aaa_texto",
+                "cadena": [
+                    "idaaa_texto"
+                ]
+            },
+            "idaaa_variable": {
+                "tipo": "sel",
+                "alias": "Variable",
+                "origen": "aaa_variable",
+                "padre": false,
+                "hijo": "aaa_valor",
+                "cadena": [
+                    "idaaa_valor"
+                ]
+            },
+            "idaaa_valor": {
+                "tipo": "sel",
+                "alias": "Valor",
+                "origen": "aaa_valor",
+                "padre": "aaa_variable",
+                "hijo": false
+            },
+            "idaaa_texto": {
+                "tipo": "sel",
+                "alias": "Texto",
+                "origen": "aaa_texto",
+                "padre": "aaa_item",
+                "hijo": false
+            }
+        },
+        "adm_usuario": {
+            "descriptor": {
+                "tipo": "texto",
+                "alias": "Descriptor"
+            },
+            "clave": {
+                "tipo": "texto",
+                "alias": "Clave"
+            },
+            "idadm_perfil": {
+                "tipo": "sel",
+                "alias": "Cliente",
+                "origen": "adm_perfil",
+                "padre": false,
+                "hijo": false
+            }
+        },
+        "aaa_dicvalor": {
+            "descriptor": {
+                "tipo": "texto",
+                "alias": "Descriptor"
+            },
+            "idaaa_variable": {
+                "tipo": "sel",
+                "alias": "Variable",
+                "origen": "aaa_variable",
+                "padre": false,
+                "hijo": "aaa_valor",
+                "cadena": [
+                    "idaaa_valor"
+                ]
+            },
+            "idaaa_valor": {
+                "tipo": "sel",
+                "alias": "Valor",
+                "origen": "aaa_valor",
+                "padre": "aaa_variable",
+                "hijo": false
+            }
+        },
+        "aaa_texto": {
+            "descriptor": {
+                "tipo": "textarea",
+                "alias": "Descriptor"
+            },
+            "idaaa_seguimiento": {
+                "tipo": "sel",
+                "alias": "Seguimiento",
+                "origen": "aaa_seguimiento",
+                "padre": false,
+                "hijo": "aaa_item",
+                "cadena": [
+                    "idaaa_item"
+                ]
+            },
+            "idaaa_item": {
+                "tipo": "sel",
+                "alias": "Item",
+                "origen": "aaa_item",
+                "padre": "aaa_seguimiento",
+                "hijo": false
+            }
+        }
+    }
+}

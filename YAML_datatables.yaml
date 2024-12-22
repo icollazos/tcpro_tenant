@@ -1,0 +1,86 @@
+#################### Define los campos de las tablas para la vista principal DT
+
+root: {
+  v_aaa_apikey: { campos: {id: ID, descriptor: API Key, }},
+  v_adm_usuario: { campos: {id: ID, descriptor: Usuario, clave: Clave, }},
+  v_aaa_proyecto: { campos: {id: ID, descriptor: Trimestres, }},
+  v_aaa_seguimiento: { campos: {id: ID, descriptor: Seguimiento,descriptor_proyecto_seguimiento: Trimestres,fechahora: Fecha y Hora de Creación }},
+  v_aaa_item: { 
+    campos: {
+      id: ID, 
+      descriptor: Item, 
+      query: Patrón de búsqueda, 
+      ultimafecha: Ultima Fecha,
+      id_tipoitem_item: Id Tipo de Item,
+      descriptor_tipoitem_item: Tipo de Item,
+    }},
+  v_aaa_texto: { 
+    campos: {
+      id: ID, 
+      descriptor: Texto Original, 
+      descriptor_item_texto: Item, 
+      fuente: Fuente, 
+      fecha: Fecha, 
+    },
+    detona: apiCustom/analizarTexto.php
+  },
+  alertas: { 
+    campos: {
+      id: ID, 
+      descriptor: Texto Original, 
+      id_esalerta_texto: ID es Alerta, 
+      descriptor_esalerta_texto: Es Alerta, 
+      fuente: Fuente, 
+      fecha: Fecha, 
+    },
+    detona: apiCustom/analizarTexto.php
+  },
+  v_aaa_variable: { campos: {id: ID, descriptor: Variable, }},
+  v_aaa_valor: { campos: {id: ID, descriptor: Valor, descriptor_variable_valor: Variable}},
+  v_aaa_dicdescarte: {campos: {id: ID, descriptor: Valor,descriptor_tipoidioma_dicdescarte: Idioma, }},
+  v_aaa_dicrechazo: {campos: {id: ID, descriptor: Valor, }},
+  v_aaa_dictextovalor: { campos: {id: ID, descriptor_valor_dictextovalor: Valor, id_texto_textovalor: ID_Texto, descriptor: Datos, }},
+  v_aaa_dicvalor: { 
+    campos: {
+      id: ID, 
+      descriptor_variable_valor: Variable, 
+      descriptor_valor_dicvalor: Valor, 
+      descriptor: Datos, },
+    detona: apiCustom/dicvalor.php
+  },
+  v_aaa_fuente: { campos: {id: ID, descriptor: Datos, }},
+  v_aaa_lemapar: { campos: {id: ID, descriptor: Datos, }},
+  v_aaa_seguimientoespejo: { campos: {id: ID, descriptor: Datos, }},
+  v_aaa_sentimiento: { campos: {id: ID, descriptor: Datos, }},
+  v_aaa_textosentimiento: { campos: {id: ID, descriptor: Datos, }},
+  v_aaa_textovalor: { campos: {
+    id: ID, 
+    descriptor_texto_textovalor: Texto Base_cortosdds,
+    id_seguimiento_item: IdS_h,
+    descriptor_seguimiento_item: Seg_h,
+    id_variable_valor: IdV_h,
+    descriptor_variable_valor: Var,
+    id_texto_textovalor: IdTexto_h,
+    descriptor_valor_textovalor: Val,
+    borrar: Borrar,
+    #descriptor: Descriptor_corto, 
+    puntaje: Puntaje, 
+    roh: ROH, 
+  }},
+  v_aaa_tipoidioma: { campos: {id: ID, descriptor: Datos, }},
+  v_aaa_tiposeguimiento: { campos: {id: ID, descriptor: Datos, }},
+  v_aaa_tipovariable: { campos: {id: ID, descriptor: Datos, }},
+  v_adm_alias: { campos: {id: ID, descriptor: Datos, }},
+  v_adm_perfil: { campos: {id: ID, descriptor: Perfil, }},
+  v_adm_reporte: { campos: {id: ID, descriptor: Datos, }},
+  v_adm_tablas: { campos: {id: ID, descriptor: Datos, }},
+  v_adm_usuario: { campos: {id: ID, descriptor: Datos, clave: Clave, descriptor_perfil_usuario: Perfil}},
+  v_adm_viewperfil: { campos: {id: ID, descriptor: Datos, }},
+  v_adm_views: { campos: {id: ID, descriptor: Datos, }},
+  v_alias: { campos: {id: ID, descriptor: Datos, }},
+  v_gra_consulta: { campos: {id: ID, descriptor: Datos, }},
+  v_ind_consulta: { campos: {id: ID, descriptor: Datos, }},
+  v_ind_modulo: { campos: {id: ID, descriptor: Datos, }},
+  v_ind_reportes: { campos: {id: ID, descriptor: Datos, }},
+}
+

@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <script src="head.js" defer></script>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand text-center" href="#" style="width: 300px;"><span id="titulo"></span></a>
+    <ul class="navbar-nav bg-dark" id="menu"></ul>
+  </nav>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6"  style="padding-top: 24px;">
+        <div id="" class="bg-white p-4 border rounded shadow">
+          <!-- Contenido del formulario aquí -->
+          <h2>Agregar registro</h2>
+          <div id="formulario"></div>
+          <p></p>
+          <hr>
+          <button class="btn btn-primary" id="btnGrabar">Grabar</button>
+          <a class="btn btn-warning" id="btnSalir">Salir</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="funciones.js"></script>
+
+<script>
+
+
+  main();
+  async function main() {
+    const alias = await cargarYAML('YAML_alias'); 
+    const yaml_datatables = await cargarYAML('YAML_datatables'); 
+    const yaml_funcionesGenerales = await cargarYAML('YAML_funcionesGenerales'); 
+    var yaml_menu = await cargarYAML('YAML_menu'); 
+    yaml_menu = yaml_menu.root;
+    const yaml_vistas = await cargarYAML('YAML_vistas'); 
+    const session = await datosUsuario();
+    const nivel=session.id_perfil_usuario;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    var vista = urlParams.get('v');
+    var v=vista.slice(2);
+
+    document.getElementById('titulo').innerHTML=yaml_vistas.root[vista].titulo; 
+    const yaml_filtrosPadres = await cargarYAML('YAML_filtrosPadres'); 
+
+    const yaml_create = await cargarYAML('YAML_create'); 
+    var json=yaml_create.root[vista.slice(2)];
+    console.log("JSON:", json);
+
+    const btnSalir = document.getElementById('btnSalir');
+    if (vista) {
+        btnSalir.href = "dt.html?v="+vista; // Establece el href al valor del parámetro GET
+    }
+    var fuentes = await cargarDatosFuente(json);
+
+    var x=generarFormulario(json, vista, fuentes, alias);
+    l(x);
+  }
+
+
+  async function grabarDatos() {
+    l("Funcion grabar")
+    const elementosDato = document.getElementsByClassName('dato');
+    const formulario = document.getElementById('miFormulario');
+    const tabla=miFormulario.getAttribute('data-tabla');
+    var argumentos={}
+    var campos={};
+    for (let i = 0; i < elementosDato.length; i++) {
+      campos[elementosDato[i].name]=elementosDato[i].value;
+    }
+    argumentos['campos']=campos;
+    argumentos['tabla']=tabla.slice(2);
+    console.log("Argumentos", argumentos)
+    var yaml_datatables = await cargarYAML('YAML_datatables'); 
+    yaml_datatables=yaml_datatables.root[tabla];
+    console.log('YDT',yaml_datatables)
+    php='api/nuevoRegistro.php';
+    try {
+      const idNuevo = await postData(php, { 
+        argumentos: argumentos
+      });    
+      console.log("Recibiendo Datos de Datatables: ", idNuevo);
+      var detona = false;
+      if (yaml_datatables.hasOwnProperty("detona")) {
+        argumentos={
+          idNuevo:idNuevo
+        }
+        try {
+          var detona=yaml_datatables.detona;
+          //alert(detona);
+          const data = await postData(detona, { 
+            argumentos: argumentos
+          });    
+          l(data)
+          window.location.href = 'dt.html?v='+tabla;
+        } catch (error) {
+          l('Error al cargar datos: 11111 ', error); 
+        }
+      }
+
+    } catch (error) {
+      l('Error al cargar datos: 2222', error); 
+    }
+    window.location.href = 'dt.html?v='+tabla;
+
+  } ///////////////////////////////////////////////////////////////////////////////////////
+
+
+    // Agregar el evento click al botón Grabar
+    document.getElementById('btnGrabar').addEventListener('click', grabarDatos);
+    document.getElementById('btnSalir').addEventListener('click', salir);
+
+    async function generarFormulario(campos, tabla, fuentes, alias) {
+      l("Generar Formulario")
+      l(alias)
+      l(campos);
+
+    // Crear un contenedor para el formulario
+    const formulario = document.createElement('form');
+    formulario.setAttribute('data-tabla', tabla);
+    formulario.setAttribute('id', 'miFormulario'); // Agregar ID al formulario
+
+    // Recorrer los campos del JSON
+    l("Fuentes: ")
+    l(fuentes)
+    l("Recorriendo campos")
+    Object.keys(campos).forEach(key => {
+      const campo = campos[key];
+      console.log('key: ',key)
+      l(campo)
+      if( campo.tipo=='sel' ){
+        var fuente=fuentes[key.slice(2)];
+        var hijo=campo.hijo;
+        var datosHijo=campos['id'+hijo]
+      }
+
+      l(fuente);
+      switch (campo.tipo) {
+        case 'texto':
+        crearInput(formulario, campo, key, alias);
+        break;
+        case 'textarea':
+        crearTextarea(formulario, campo, key, alias);
+        break;
+        case 'sel':
+        crearSel(formulario, campo, fuente, hijo, key, alias);
+        break;
+        case 'seccion':
+        crearSeccion(formulario, campo);
+        break;
+        default:
+        console.warn(`Tipo de campo desconocido: ${campo.tipo}`);
+      }
+    });
+
+    // Agregar el formulario al cuerpo del documento o a un contenedor específico
+    document.getElementById('formulario').appendChild(formulario);
+  }
+
+
+  async function cargarDatosFuente(json){
+    l("Cargando datos")
+    fuente='api/data_fuente.php';
+    var argumentos={
+      json:json,
+    };
+    try {
+      const data = await postData(fuente, { 
+        argumentos: argumentos
+      });    
+      l("Recibiendo Datos de Datatables");
+      l(data)
+      return data; 
+    } catch (error) {
+      l('Error al cargar datos:', error); 
+    }
+  }
+
+  async function crearInput(formulario, campo, id, alias) {
+    const input = document.createElement('input');
+    const label = document.createElement('label');
+    
+    // Establecer el texto del label
+    label.textContent = alias[id];
+    
+    // Configurar el input
+    input.type = 'text';
+    input.className = 'form-control';
+    
+    // Agregar clase 'dato' si no es una cadena
+    if (!campo.cadena) {
+      input.className += ' dato';
+    }
+    
+    // Establecer atributos del input
+    input.name = id;
+    input.id = id;
+    input.placeholder = alias[id];
+    
+    // Hacer que el input sea obligatorio
+    input.required = true; // Agregar el atributo required
+
+    // Agregar el label y el input al formulario
+    formulario.appendChild(label);
+    formulario.appendChild(input);
+  }
+
+
+  async function crearTextarea(formulario, campo, id, alias) {
+    const input = document.createElement('textarea');
+    const label = document.createElement('label');
+    label.textContent = alias[id];
+    
+    // Establecer clases y atributos
+    input.className = 'form-control';
+    if (!campo.cadena) {
+        input.className += ' dato'; // Añadir clase 'dato' si no es cadena
+      }
+      input.name = id;
+      input.id = id;
+      input.placeholder = "Escriba el texto aquí";
+
+    // Establecer la altura del textarea
+    input.style.height = '200px'; // Establecer altura a 200px
+
+    // Agregar el label y el textarea al formulario
+    formulario.appendChild(label);
+    formulario.appendChild(input);
+  }
+
+
+
+  async function crearSeccion(formulario, campo) {
+    const hr = document.createElement('hr');
+    const titulo = document.createElement('h4');
+    titulo.textContent = campo.titulo;
+    formulario.appendChild(hr);
+    formulario.appendChild(titulo);
+  }
+
+    // Agregar el label al formulario
+    async function crearSel(formulario, campo, fuente, hijo, id, alias) {
+    console.log("CREA SEL"); // Cambié l() a console.log() para evitar confusiones
+    const label = document.createElement('label');
+    label.textContent = alias[id];
+    const br = document.createElement('br');
+    const select = document.createElement('select');
+    select.name = id;
+    select.className = 'form-control'; // Establecer clase base
+
+    // Verificar si 'campo' no tiene la propiedad 'cadena'
+    if (!campo.hasOwnProperty("cadena")) {
+        select.className += ' dato'; // Añadir clase 'dato'
+        select.required = true; // Hacer que el select sea obligatorio
+      }
+
+      select.id = id;
+
+    // Crear la opción por defecto
+    const optionElement = document.createElement('option');
+    optionElement.value = "";
+    optionElement.textContent = "Seleccione...";
+    select.appendChild(optionElement);
+
+    // Agregar las opciones desde la fuente
+    fuente.forEach(opcion => {
+      const optionElement = document.createElement('option');
+      optionElement.value = opcion.id;
+      optionElement.textContent = opcion.descriptor;
+      select.appendChild(optionElement);
+    });
+
+    // Manejar el evento onchange
+    select.onchange = function() {
+      limpiarSel(campo.cadena); 
+    };
+
+    // Manejar el evento onblur
+    select.onblur = function() {
+      alimentarHijo(hijo, select.id);
+    };
+
+    // Agregar elementos al formulario
+    formulario.appendChild(label);
+    formulario.appendChild(br);
+    formulario.appendChild(br);
+    formulario.appendChild(br);
+    formulario.appendChild(br);
+    formulario.appendChild(br);
+    formulario.appendChild(select);
+  }
+
+  async function limpiarSel(cadena){
+    l("Limpiando")
+    l(cadena);
+    var c;
+    var q=0;
+    cadena.forEach(elemento => {
+      l(elemento)
+      c=document.getElementById(elemento);
+      c.innerHTML='';
+      if(q>0){
+        c.disabled=false;
+      }
+      q++
+    });
+  }
+
+  async function alimentarHijo(select, idFiltro){
+    l("alimentando");
+    l(select)
+    l(idFiltro)
+    var selectElement = document.getElementById(idFiltro);
+    var valorFiltro = selectElement.options[selectElement.selectedIndex].value;
+    l(valorFiltro)
+    var argumentos={
+      tabla:select,
+      campoFiltro:idFiltro,
+      valorFiltro:valorFiltro,
+    };
+    l(argumentos);
+
+    try {
+      const data = await postData('api/data_buscarDataSelFiltrado.php', { 
+        argumentos: argumentos
+      });    
+      l("Recibiendo Datos de Datatables");
+      l(data)
+      crearOpciones(select, data)
+      return data; 
+    } catch (error) {
+      console.log('Error al cargar datos:', error); 
+    }
+
+    var yaml_create = await cargarYAML('YAML_create'); 
+    yaml_create=yaml_create.root[select];
+    l(yaml_create)
+
+
+    return true;
+
+  }
+
+  async function crearOpciones(select,data){
+    l("creando opciones")
+    l(select)
+    const sel = document.getElementById('id'+select);
+    l(sel);
+
+    data.forEach(opcion => {
+      const optionElement = document.createElement('option');
+      optionElement.value = opcion.id;
+      optionElement.textContent = opcion.descriptor;
+      sel.appendChild(optionElement);
+    });
+
+  }
+
+
+  async function limpiarSelects(cadena){
+    l("Limpiando")
+    l(cadena);
+    var c;
+    cadena.forEach(elemento => {
+      l(elemento)
+      c=document.getElementById(elemento);
+      c.innerHTML='';
+    });
+  }
+
+  async function actualizarSelectPadre(idCampo, datos, formulario) { 
+    l("Actualizando Select Padre")
+    l(idCampo)
+    l(datos)
+    var cadena=datos.cadena;
+    cadena.forEach(elemento => {
+      l("erwiwreiygreigrgiroewgrweigiurewuigrewigurew")
+      l(elemento)
+    });
+    var campo=document.getElementById('id'+idCampo);
+    l(campo);
+    campo.innerHTML='';
+  }
+
+
+
+
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
+
+</html>

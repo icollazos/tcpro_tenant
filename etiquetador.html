@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <script src="head.js" defer></script>
+</head>
+
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand text-center" href="#" style="width: 300px;"><span id="titulo"></span></a>
+    <div class="collapse navbar-collapse">
+        <ul class="navbar-nav bg-dark" id="menu"></ul>
+        <ul class="navbar-nav ms-auto"> <!-- Clase ms-auto para empujar hacia la derecha -->
+            <li class="nav-item">
+                <span class="nav-link text-light" id="usuarioNombre"></span> <!-- Aquí se mostrará el nombre del usuario -->
+            </li>
+            <li class="nav-item">
+                <a class="nav-link btn btn-danger btn-sm" href="apiCustom/borrarSesion.php">Cerrar Sesión</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+  <div id="app">
+    <div class="hidden container-fluid d-flex justify-content-center align-items-center vh-100">
+     <div id="report-container" class="container-fluid h-100">
+      <div class="row h-100">
+        <div class="col-2" style="padding-top: 24px;">
+
+         <!--
+         <label>Proyecto</label>
+         <select class="form-control" id="idproyecto" onchange="cargarSeguimientos(this.value)">
+          <option>Seleccione...</option>
+        </select>
+        <label>Seguimiento</label>
+        <select class="form-control" id="idseguimiento" onchange="cargarVariables(this.value)">
+          <option>Seleccione...</option>
+        </select>
+         -->
+        <label>Variable</label>
+        <select class="form-control" id="idvariable" onchange="cargarDatos(this.value)">
+          <option>Seleccione...</option>
+        </select>
+
+        <hr>
+        <div id="filtrosInternos">
+          <div id="v_aaa_fechaInicial" data-interno="true">
+            <label>Fecha Inicial</label>
+            <input type="date" class="form-control arg" id="fechaInicial" onchange="cargarDatos();" onblur="cargarDatos();"/>
+          </div>
+          <div id="v_aaa_fechaFinal" data-interno="true">
+            <label>Fecha Final</label>
+            <input type="date" class="form-control arg" id="fechaFinal" onchange="cargarDatos();" onblur="cargarDatos();"/>
+          </div>
+          <div id="v_aaa_palabra" data-interno="true">
+            <label>Buscar por palabras</label>
+            <input type="text" class="form-control arg" id="palabra" onchange="cargarDatos();" onblur="cargarDatos();"/>
+          </div>
+          <div id="v_aaa_excepto" data-interno="true">
+            <label>Excepto</label>
+            <input type="text" class="form-control arg" id="excepto" onchange="cargarDatos();" onblur="cargarDatos();"/>
+          </div>
+          <label>Palabras más frecuentes</label>
+          <select class="form-control" id="palabrasFrecuentes" onchange="cargarDatos()">
+            <option value="">Seleccione...</option>
+          </select>
+          <hr>
+        </div>
+
+      </div>
+      <div class="col-10" id="salida" style="padding-top: 24px;">
+        <button  class="btn btn-warning btn-sm" onclick="reiniciarRobot();">Reiniciar robot de etiquetado</button>
+        <button  class="btn btn-success btn-sm" onclick="ejecutarRobot();">Ejecutar robot</button>
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal">
+  Eliminar registros descartables
+</button>
+
+
+
+        <div class="accordion" id="accordionExample" style="margin-top: 14px">
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button bg-primary text-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                <strong class="">Textos etiquetados por Humano</strong>
+              </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+              <div class="accordion-body">
+                <table class="table display table-hover table-sm" id="tablaH">
+                  <thead id="tabla-header">
+                    <th>Id</th>
+                    <th>Id</th>
+                    <th style="width: 60%">Texto</th>
+                    <th>Valor</th>
+                    <th>Puntaje</th>
+                    <th>Borrar</th>
+                    <th>Acciones</th>
+                  </thead>
+                  <tbody id="tabla-body">
+                  </tbody>
+                </table>
+
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button bg-primary collapsed text-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                <strong>Textos etiquetados por el Robot</strong>
+              </button>
+            </h2>
+            <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+              <div class="accordion-body">
+                <table class="table display table-hover table-sm" id="tablaR">
+                  <thead id="tabla-header">
+                    <th>Id</th>
+                    <th>Id</th>
+                    <th style="width: 60%">Texto</th>
+                    <th>Valor</th>
+                    <th>Puntaje</th>
+                    <th>Borrar</th>
+                    <th>Acciones</th>
+                  </thead>
+                  <tbody id="tabla-body">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button bg-primary collapsed text-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                <strong>Textos por etiquetar</strong>
+              </button>
+            </h2>
+            <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+              <div class="accordion-body">
+                <table class="table display table-hover table-sm" id="tablaX">
+                  <thead id="tabla-header">
+                    <th>Id</th>
+                    <th style="width: 75%">Texto</th>
+                    <th style="width: 75%">Borrar</th>
+                    <th>Acciones</th>
+                  </thead>
+                  <tbody id="tabla-body">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button bg-primary collapsed text-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                <strong>Textos descartados</strong>
+              </button>
+            </h2>
+            <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+              <div class="accordion-body">
+                <table class="table display table-hover table-sm" id="tablaD">
+                  <thead id="tabla-header">
+                    <th>Id</th>
+                    <th style="width: 75%">Texto</th>
+                    <th style="width: 75%">Borrar</th>
+                    <th>Acciones</th>
+                  </thead>
+                  <tbody id="tabla-body">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<!-- Modal para mostrar detalles del registro -->
+<div class="modal fade" id="modalDetalles" tabindex="-1" aria-labelledby="modalDetallesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalDetallesLabel">Detalles del Registro</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="modalDetallesBody">
+        <!-- Aquí se llenará la información del registro -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para confirmar la eliminación del registro -->
+<div class="modal fade" id="modalConfirmacionEtiqueta" tabindex="-1" aria-labelledby="modalConfirmacionLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalConfirmacionLabel">Confirmar Eliminación de Etiqueta</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="modalConfirmacionBodyEtiqueta">
+        <!-- Aquí se llenará la información del registro -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="btnConfirmarEliminarEtiqueta">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalConfirmacionTexto" tabindex="-1" aria-labelledby="modalConfirmacionLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalConfirmacionLabel">Confirmar Eliminación del Texto</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="modalConfirmacionBodyTexto">
+        <!-- Aquí se llenará la información del registro -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="btnConfirmarEliminarTexto">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Realmente quieres depurar la base de datos de los registros que no tengan etiquetas asociadas.
+        <span class="text-danger"><strong>Esta acción no podrá deshacerse</strong></span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick="borrarSobrantes();">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="funciones.js"></script>
+
+<script>
+  main();
+
+
+
+  async function main() {
+    const urlParams = new URLSearchParams(window.location.search);
+    var vista = urlParams.get('v');
+    vista="v_aaa_textovalor";
+    const alias = await cargarYAML('YAML_alias'); 
+    const yaml_datatables = await cargarYAML('YAML_datatables'); 
+    const yaml_funcionesGenerales = await cargarYAML('YAML_funcionesGenerales'); 
+    var yaml_menu = await cargarYAML('YAML_menu'); 
+    yaml_menu = yaml_menu.root;
+    var palabrasFrecuentes=await cargarFrecuentes();
+    const session = await datosUsuario();
+    document.getElementById('usuarioNombre').innerHTML="USUARIO: "+session.usuario;
+    const nivel=session.id_perfil_usuario;
+    document.getElementById('titulo').innerHTML=alias[vista]; 
+    crearMenu(yaml_menu[nivel]); 
+
+    //var proyectos =  await cargarProyectos()  
+    var variables =  await cargarVariables()  
+    //console.log(proyectos)
+  }
+
+
+
+async function borrarSobrantes(){
+    const url = 'apiCustom/etiquetador_2.php';
+    const params = {
+        buscar: 'borrarSobrantes',
+    };
+    try {
+      const data = await getData(url, params);
+    } catch {
+
+    }
+    document.getElementById("exampleModal").hide();
+    cargarDatos();
+}
+
+async function cargarDatos() {
+    console.log("Cargar Datos");
+    const url = 'apiCustom/etiquetador_2.php';
+    //const idseguimiento = document.getElementById('idseguimiento').value;
+    const idvariable = document.getElementById('idvariable').value;
+    const fechaInicial = document.getElementById('fechaInicial').value;
+    const fechaFinal = document.getElementById('fechaFinal').value;
+    const palabra = document.getElementById('palabra').value;
+    const excepto = document.getElementById('excepto').value;
+    const palabrasFrecuentes = document.getElementById('palabrasFrecuentes').value;
+
+    const params = {
+        aaaaaaaaaaa: 'eirufgiweripsbiewbpietwbpisetb',
+        buscar: 'textos',
+        //idseguimiento: idseguimiento,
+        idvariable: idvariable,
+        fechaInicial: fechaInicial,
+        fechaFinal: fechaFinal,
+        palabra: palabra,
+        excepto: excepto,
+        palabrasFrecuentes: palabrasFrecuentes
+    };
+
+    console.log("Parámetros a enviar:", params);
+    try {
+      const data = await getData(url, params);
+        console.log("Textos:", data);
+        agregarDatosATabla(data['datosH'], 'tablaH');
+        agregarDatosATabla(data['datosR'], 'tablaR');
+        agregarDatosATabla2(data['datosX'], 'tablaX');
+        agregarDatosATablaDescartados(data['datosD'], 'tablaD');
+        
+        new DataTable('#tablaH');
+        new DataTable('#tablaR');
+        new DataTable('#tablaX');
+        new DataTable('#tablaD');
+        
+    } catch (error) {
+        console.error("Error al cargar seguimientos:", error);
+    }
+}
+
+  async function reiniciarRobot(){
+    l("Ejecutando el robot");
+    const url = 'apiCustom/robot.php';
+    var idvariable=document.getElementById("idvariable").value;
+    var params={};
+    params={
+      buscar:'reiniciarRobot',
+      idvariable:idvariable
+    };
+    let data; 
+    try {
+      data = await getData(url, params); 
+      console.log("Seguimientos: ", data);
+      cargarDatos();
+    } catch (error) {
+      console.error("Error al cargar seguimientos:", error);
+      data = [];
+    }
+  }
+
+
+  async function ejecutarRobot(){
+    l("Ejecutando el robot");
+    const url = 'apiCustom/robot.php';
+    var idvariable=document.getElementById("idvariable").value;
+    var params={};
+    params={
+      buscar:'ejecutarRobot',
+      idvariable:idvariable
+    };
+    let data; 
+    try {
+      data = await getData(url, params); 
+      console.log("Seguimientos: ", data);
+      cargarDatos();
+    } catch (error) {
+      console.error("Error al cargar seguimientos:", error);
+      data = [];
+    }
+  }
+
+  async function cargarProyectos(){
+    l("Cargar Proyectos");
+    const url = 'apiCustom/etiquetador_2.php';
+    const params={
+      buscar:'proyectos'
+    };
+    const data = await getData(url, params); 
+    console.log("Proyectos: ",data);
+    llenarSelect('idproyecto', data)
+    await cargarSeguimientos();
+  }
+
+  async function cargarSeguimientos(){
+    l("Cargar Seguimientos");
+    const url = 'apiCustom/etiquetador_2.php';
+    const idproyecto=document.getElementById('idproyecto').value;
+    const params={
+      buscar:'seguimientos',
+      idproyecto:idproyecto
+    };
+    let data; 
+    try {
+      data = await getData(url, params); 
+      console.log("Seguimientos: ", data);
+    } catch (error) {
+      console.error("Error al cargar seguimientos:", error);
+      data = [];
+    }
+    console.log("Seguimientos: ",data);
+    llenarSelect('idseguimiento', data)
+    await cargarVariables();
+  }
+
+  async function cargarVariables(){
+    l("Cargar Variables");
+    const url = 'apiCustom/etiquetador_2.php';
+    //const idseguimiento=document.getElementById('idseguimiento').value;
+    const params={
+      buscar:'variables',
+      //idseguimiento:idseguimiento
+    };
+    let data; 
+    try {
+      data = await getData(url, params); 
+      console.log("Seguimientos: ", data);
+    } catch (error) {
+      console.error("Error al cargar seguimientos:", error);
+      data = [];
+    }
+    console.log("Variables: ",data);
+    llenarSelect('idvariable', data)
+  }
+
+  function llenarSelect(id, data) {
+    const select = document.getElementById(id); 
+    select.innerHTML = '';
+    const option = document.createElement('option'); 
+    option.value = 0; 
+    option.textContent = "Seleccione..."; 
+    select.appendChild(option); 
+    data.forEach(item => {
+      const option = document.createElement('option'); 
+      option.value = item.id; 
+      option.textContent = item.descriptor; 
+      select.appendChild(option); 
+    });
+  }
+
+
+
+  async function cargarFrecuentes(){
+    l("Cargar Proyectos");
+    const url = 'apiCustom/etiquetador_2.php';
+    const params={
+      buscar:'palabrasFrecuentes'
+    };
+    const data = await getData(url, params); 
+    if(data){
+    console.log("Frecuentes: ",data);
+    llenarSelect('palabrasFrecuentes', data)
+    }
+  }
+
+async function agregarDatosATabla(data,tabla) {
+  //console.log("AGREGANDO DATOS A TABLA", data);
+  const headerRow = document.getElementById(tabla).getElementsByTagName('thead')[0];
+  headerRow.classList.add('table-info');
+
+  const tablaBody = document.getElementById(tabla).getElementsByTagName('tbody')[0];
+  tablaBody.innerHTML = '';
+    const registrosAgregados = new Set(); // Conjunto para rastrear registros únicos
+
+    // Recorremos cada objeto en el array
+    for (const key in data) {
+      const item = data[key];
+      //l(item);
+
+        // Procesamos el caso donde hay un solo objeto (por ejemplo, 123 o 130)
+        const registro = `${item.id}-${item.idtexto}-${item.descriptortexto}-${item.idvalor}-${item.descriptorvalor}-${item.puntaje}-${item.borrar}`;
+        const row = tablaBody.insertRow();
+        row.insertCell(0).innerText = item.id; // Columna oculta
+        row.insertCell(1).innerText = item.idtexto; // Columna oculta
+        row.insertCell(2).innerText = item.descriptortexto; // Texto
+        row.insertCell(3).innerText = item.descriptorvalor || ''; // Valor
+        row.insertCell(4).innerText = item.puntaje || ''; // Puntaje
+        row.insertCell(5).innerText = item.borrar || ''; // Puntaje
+        const accionCell = row.insertCell(6); // Nueva celda para la acción
+
+        // Botón Etiquetar
+        const botonEtiquetar = document.createElement('button');
+        botonEtiquetar.className = 'btn btn-success btn-sm'; // Clase Bootstrap para estilo
+        botonEtiquetar.innerText = 'Etiquetar';
+        botonEtiquetar.onclick = function() {
+            const idTexto = item.idtexto; // Obtener ID del texto del registro actual
+            const idvariable = document.getElementById('idvariable').value; // Obtener valor del select
+            history.replaceState(null, '', window.location.pathname); // Esto mantiene la URL actual sin cambios
+
+            window.location.href = `crearEtiqueta.html?idTexto=${idTexto}&idvariable=${idvariable}`;
+          };
+
+        // Botón Eliminar
+        const botonEliminar = document.createElement('button');
+        botonEliminar.className = 'btn btn-danger btn-sm'; // Clase Bootstrap para estilo
+        botonEliminar.innerText = 'Eliminar';
+        
+        // Cambiar el onclick para llamar a confirmarEliminacion con el ID del registro
+        botonEliminar.onclick = function() {
+            confirmarEliminacionEtiqueta(item); // Pasar el objeto completo o solo el ID según tu implementación
+          };
+
+        accionCell.appendChild(botonEtiquetar); // Agregar el botón a la celda
+        accionCell.appendChild(botonEliminar); // Agregar el botón a la celda
+      }
+    }
+
+
+    async function agregarDatosATabla2(data,tabla) {
+      console.log("AGREGANDO DATOS A TABLA", data);
+      const headerRow = document.getElementById(tabla).getElementsByTagName('thead')[0];
+      headerRow.classList.add('table-info');
+
+      const tablaBody = document.getElementById(tabla).getElementsByTagName('tbody')[0];
+      tablaBody.innerHTML = '';
+    const registrosAgregados = new Set(); // Conjunto para rastrear registros únicos
+
+    // Recorremos cada objeto en el array
+    for (const key in data) {
+      const item = data[key];
+      //l(item);
+
+        // Procesamos el caso donde hay un solo objeto (por ejemplo, 123 o 130)
+        const registro = `${item.id}-${item.descriptortexto}-${item.idvalor}-${item.descriptorvalor}-${item.puntaje}-${item.roh}-${item.borrar}`;
+        const row = tablaBody.insertRow();
+        row.insertCell(0).innerText = item.id; // Columna oculta
+        row.insertCell(1).innerText = item.descriptortexto; // Texto
+        row.insertCell(2).innerText = item.borrar; // Texto
+        const accionCell = row.insertCell(3); // Nueva celda para la acción
+
+        // Botón Etiquetar
+        const botonEtiquetar = document.createElement('button');
+        botonEtiquetar.className = 'btn btn-success btn-sm'; // Clase Bootstrap para estilo
+        botonEtiquetar.innerText = 'Etiquetar';
+        botonEtiquetar.onclick = function() {
+            const idTexto = item.id; // Obtener ID del texto del registro actual
+            const idvariable = document.getElementById('idvariable').value; // Obtener valor del select
+            history.replaceState(null, '', window.location.pathname); // Esto mantiene la URL actual sin cambios
+
+            window.location.href = `crearEtiqueta.html?idTexto=${idTexto}&idvariable=${idvariable}`;
+          };
+
+        // Botón Eliminar
+          const botonEliminar = document.createElement('button');
+          botonEliminar.className = 'btn btn-danger btn-sm'; // Clase Bootstrap para estilo
+          botonEliminar.innerText = 'Eliminar';          
+          botonEliminar.onclick = function() {
+              confirmarEliminacionTexto(item); // Pasar el objeto completo o solo el ID según tu implementación
+            };
+
+        // Cambiar el onclick para llamar a confirmarEliminacion con el ID del registro
+
+        accionCell.appendChild(botonEtiquetar); // Agregar el botón a la celda
+        accionCell.appendChild(botonEliminar); // Agregar el botón a la celda
+      }
+    }
+
+
+    
+    async function agregarDatosATablaDescartados(data,tabla) {
+      console.log("AGREGANDO DATOS A TABLA", data);
+      const headerRow = document.getElementById(tabla).getElementsByTagName('thead')[0];
+      headerRow.classList.add('table-info');
+
+      const tablaBody = document.getElementById(tabla).getElementsByTagName('tbody')[0];
+      tablaBody.innerHTML = '';
+    const registrosAgregados = new Set(); // Conjunto para rastrear registros únicos
+
+    // Recorremos cada objeto en el array
+    for (const key in data) {
+      const item = data[key];
+      //l(item);
+
+        // Procesamos el caso donde hay un solo objeto (por ejemplo, 123 o 130)
+        const registro = `${item.id}-${item.descriptortexto}-${item.idvalor}-${item.descriptorvalor}-${item.puntaje}-${item.roh}-${item.borrar}`;
+        const row = tablaBody.insertRow();
+        row.insertCell(0).innerText = item.id; // Columna oculta
+        row.insertCell(1).innerText = item.descriptortexto; // Texto
+        row.insertCell(2).innerText = item.borrar; // Texto
+        const accionCell = row.insertCell(3); // Nueva celda para la acción
+
+        // Botón Etiquetar
+        const botonEtiquetar = document.createElement('button');
+        botonEtiquetar.className = 'btn btn-success btn-sm'; // Clase Bootstrap para estilo
+        botonEtiquetar.innerText = 'Etiquetar';
+        botonEtiquetar.onclick = function() {
+            const idTexto = item.id; // Obtener ID del texto del registro actual
+            const idvariable = document.getElementById('idvariable').value; // Obtener valor del select
+            history.replaceState(null, '', window.location.pathname); // Esto mantiene la URL actual sin cambios
+
+            window.location.href = `crearEtiqueta.html?idTexto=${idTexto}&idvariable=${idvariable}`;
+          };
+
+        // Botón Eliminar
+          const botonEliminar = document.createElement('button');
+          botonEliminar.className = 'btn btn-success btn-sm'; // Clase Bootstrap para estilo
+          botonEliminar.innerText = 'Restaurar';          
+          botonEliminar.onclick = function() {
+              confirmarRestauracionTexto(item); // Pasar el objeto completo o solo el ID según tu implementación
+            };
+
+        // Cambiar el onclick para llamar a confirmarEliminacion con el ID del registro
+
+        accionCell.appendChild(botonEtiquetar); // Agregar el botón a la celda
+        accionCell.appendChild(botonEliminar); // Agregar el botón a la celda
+      }
+    }
+
+
+
+
+// Función para confirmar eliminación
+function confirmarEliminacionEtiqueta(item) {
+  const modalBody = document.getElementById('modalConfirmacionBodyEtiqueta');
+  modalBody.innerHTML = ''; 
+  const p = document.createElement('p');
+  p.textContent = `¿Estás seguro de que deseas eliminar la etiqueta de valor con ID: ${item.id}?`;
+  modalBody.appendChild(p);
+
+  const modal = new bootstrap.Modal(document.getElementById('modalConfirmacionEtiqueta'));
+  modal.show();
+
+  document.getElementById('btnConfirmarEliminarEtiqueta').onclick = function() {
+    eliminarRegistroEtiqueta(item.id); 
+    modal.hide(); 
+  };
+}
+
+
+
+// Función para confirmar eliminación
+function confirmarEliminacionTexto(item) {
+  const modalBody = document.getElementById('modalConfirmacionBodyTexto');
+  modalBody.innerHTML = ''; 
+  const p = document.createElement('p');
+  p.textContent = `¿Estás seguro de que deseas eliminar el registro de texto con ID: ${item.id}?`;
+  modalBody.appendChild(p);
+
+  const modal = new bootstrap.Modal(document.getElementById('modalConfirmacionTexto'));
+  modal.show();
+
+  document.getElementById('btnConfirmarEliminarTexto').onclick = function() {
+    eliminarRegistroTexto(item.id); 
+    modal.hide(); 
+  };
+}
+
+// Función para confirmar eliminación
+function confirmarRestauracionTexto(item) {
+  const modalBody = document.getElementById('modalConfirmacionBodyTexto');
+  modalBody.innerHTML = ''; 
+  const p = document.createElement('p');
+  p.textContent = `¿Estás seguro de que deseas eliminar el registro de texto con ID: ${item.id}?`;
+  modalBody.appendChild(p);
+
+  const modal = new bootstrap.Modal(document.getElementById('modalConfirmacionTexto'));
+  modal.show();
+
+  document.getElementById('btnConfirmarEliminarTexto').onclick = function() {
+    eliminarRegistroTexto(item.id); 
+    modal.hide(); 
+  };
+}
+
+
+async function eliminarRegistroEtiqueta(id) {
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const vistaActual = urlParams.get('v'); 
+    l(vistaActual);
+    const response = await fetch('api/eliminarRegistro.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: id,
+        vistaActual: 'aaa_textovalor' 
+      }),
+    });
+    if (!response.ok) {
+      throw new Error('Error en la eliminación del registro');
+    }
+    const result = await response.json();
+    console.log('Registro eliminado:', result);
+    var argumentos={ vista:vistaActual }
+    var datos= await cargarDatos(argumentos);
+      //main();
+      //agregarDatosATabla(datos);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
+
+async function eliminarRegistroTexto(id) {
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const vistaActual = urlParams.get('v'); 
+    l(vistaActual);
+    const response = await fetch('api/eliminarRegistroTexto.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: id,
+        vistaActual: 'aaa_texto' 
+      }),
+    });
+    if (!response.ok) {
+      throw new Error('Error en la eliminación del registro');
+    }
+    const result = await response.json();
+    console.log('Registro eliminado:', result);
+    var argumentos={ vista:vistaActual }
+    var datos= await cargarDatos(argumentos);
+      main();
+      agregarDatosATabla(datos);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
+  function verDetalles(item) {
+    const modalBody = document.getElementById('modalDetallesBody');
+    modalBody.innerHTML = ''; 
+    const table = document.createElement('table');
+    table.classList.add('table', 'table-bordered');     
+    const tbody = document.createElement('tbody');    
+    for (const key in item) {
+      if (item.hasOwnProperty(key)) {
+        const row = document.createElement('tr');
+        const cellKey = document.createElement('td');
+        cellKey.textContent = key.charAt(0).toUpperCase() + key.slice(1); 
+        row.appendChild(cellKey);
+        const cellValue = document.createElement('td');
+        cellValue.textContent = item[key]; 
+        row.appendChild(cellValue);
+        tbody.appendChild(row);
+      }
+    }    
+    table.appendChild(tbody);    
+    modalBody.appendChild(table);    
+    const modal = new bootstrap.Modal(document.getElementById('modalDetalles'));
+    modal.show();
+  }
+
+
+
+</script>
+
+</html>

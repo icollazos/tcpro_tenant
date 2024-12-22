@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrenamiento del Robot</title>
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        .palabra {
+            cursor: pointer;
+            border-radius: 3px;
+            padding-left: 0px;
+            padding-right: 5px; 
+        }
+        .gris {
+            color: #aaa;
+        }
+        .bg-warning {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+
+<main style="max-height: 850px;">
+    <div class="flex-shrink-0 p-3 bg-white scroll" style="width: 85%;">
+        <div class="col">
+            <div class="card">
+                <h5 class="card-header">Entrenamiento del Robot</h5>
+                <div class="card-body">
+                    <div class="row">
+                        <h5 class="card-title">Texto original</h5>
+                        <p class="card-text" id="texto-original"></p>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-6">
+                            <table class="table" id="tablaValores">
+                                <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabla-body"></tbody>
+                            </table>
+                        </div>
+                        <div class="col">
+                            <label for="" class="form-label">Seleccione el valor a asignar</label>
+                            <select class="form-control" id="valor"></select>
+                            <label for="" class="form-label">Verifique sus evidencias y grabe</label><br>
+                            <button class="btn btn-primary btn-sm" onclick="enviar()">Grabar</button><br>
+                            <label for="" class="form-label">Volver a la tabla principal</label><br>
+                            <button onclick="volver()" class="btn btn-success btn-sm">Salir</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+// Datos simulados
+const textoOriginal = "Este es un texto de ejemplo para el entrenamiento del robot.";
+const opciones = {
+    1: 'Opción 1',
+    2: 'Opción 2',
+    3: 'Opción 3'
+};
+
+// Inicializar el texto original
+document.addEventListener('DOMContentLoaded', function() {
+    const palabras = textoOriginal.split(" ");
+    const contenedorTexto = document.getElementById('texto-original');
+    
+    palabras.forEach((palabra, index) => {
+        const span = document.createElement('span');
+        span.className = 'palabra';
+        span.id = index;
+        span.textContent = palabra;
+        span.onclick = function() {
+            this.classList.toggle('bg-warning');
+        };
+        contenedorTexto.appendChild(span);
+        contenedorTexto.appendChild(document.createTextNode(" "));
+    });
+
+    // Cargar las opciones en el select
+    const selectValor = document.getElementById('valor');
+    for (const [key, value] of Object.entries(opciones)) {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = value;
+        selectValor.appendChild(option);
+    }
+});
+
+// Función para enviar los datos
+function enviar() {
+    const palabrasSeleccionadas = document.querySelectorAll('.bg-warning');
+    const valorSeleccionado = document.getElementById('valor').value;
+
+    if (valorSeleccionado === "" || palabrasSeleccionadas.length === 0) {
+        alert("¡Debes seleccionar un valor y asociarle al menos una palabra!");
+        return;
+    }
+
+    // Aquí podrías manejar el envío de datos a tu servidor
+    console.log("Palabras seleccionadas:", Array.from(palabrasSeleccionadas).map(p => p.textContent));
+    console.log("Valor seleccionado:", valorSeleccionado);
+
+    // Limpiar selección
+    palabrasSeleccionadas.forEach(palabra => palabra.classList.remove('bg-warning'));
+}
+
+// Simulación de volver a la tabla principal
+function volver() {
+    alert("Volviendo a la tabla principal...");
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <script src="head.js" defer></script>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+        #grafico {
+            width: 100%;
+            height: 800px;
+            border: 1px solid #ccc;
+            padding: 0px;
+        }
+        .bubble {
+            stroke: #fff;
+            stroke-width: 2px;
+        }
+        text {
+            font-family: Arial;
+            font-size: 12px; /* Ajusta el tamaño del texto aquí */
+            text-anchor: middle;
+            fill: #000; /* Color del texto */
+        }
+        .slider {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand text-center" href="#" style="width: 300px;"><span id="titulo"></span></a>
+    <ul class="navbar-nav bg-dark" id="menu"></ul>
+
+        <ul class="navbar-nav ms-auto"> <!-- Clase ms-auto para empujar hacia la derecha -->
+            <li class="nav-item">
+                <span class="nav-link text-light" id="usuarioNombre"></span> <!-- Aquí se mostrará el nombre del usuario -->
+            </li>
+            <li class="nav-item">
+                <a class="nav-link btn btn-danger btn-sm" href="apiCustom/borrarSesion.php">Cerrar Sesión</a>
+            </li>
+        </ul>
+
+  </nav>
+  <div id="app">
+    <div class="hidden container-fluid d-flex justify-content-center align-items-center vh-100">
+     <div id="report-container" class="container-fluid h-100">
+      <div class="row h-100">
+        <div class="col-2" style="padding-top: 24px;">
+         <div id="filtrosInternos">
+          <!--
+          <div class="form-group">
+            <label>Proyecto</label>
+            <select id="idproyecto" class="form-control" onchange="cargarSeguimientos(this.value);"></select>
+          </div>
+          <div class="form-group">
+            <label>Seguimiento</label>
+            <select id="idseguimiento" class="form-control" onchange="cargarVariables(this.value);"></select>
+          </div>
+        -->
+          <div class="form-group">
+            <label>Variable</label>
+            <select id="idvariable" class="form-control" onchange="dobleCarga(this.value);"></select>
+          </div>
+          <div class="form-group">
+            <label>Valor</label>
+            <select id="idvalor" class="form-control" multiple  onchange="cargarDatosNube(this.value);" style="height: 300px;"></select>
+          </div>
+          <div id="v_aaa_fechaInicial" data-interno="true">
+            <label>Fecha Inicial</label>
+            <input type="date" class="form-control" id="fechaInicial" onchange="cargarDatosNube(this.value);"/>
+          </div>
+          <div id="v_aaa_fechaFinal" data-interno="true">
+            <label>Fecha Final</label>
+            <input type="date" class="form-control" id="fechaFinal" onchange="cargarDatosNube(this.value);"/>
+          </div>
+          <div id="v_aaa_palabra" data-interno="true">
+            <label>Buscar por palabras</label>
+            <input type="text" class="form-control" id="palabra"onchange="cargarDatosNube(this.value);"/>
+          </div>
+          <div id="v_aaa_excepto" data-interno="true">
+            <label>Excepto</label>
+            <input type="text" class="form-control" id="excepto"onchange="cargarDatosNube(this.value);"/>
+          </div>
+          <!--
+          <hr>
+          <button class="btn btn-primary btn-block w-100" id="pedirDatos" onclick="cargarDatosNube()">Consultar</button>
+        -->
+        </div>
+      </div>
+      <div class="col-8" id="salida" style="padding-top: 24px;">
+        <div id="grafico"></div>
+        <!--
+        <input type="range" id="bubbleRange" class="slider" min="1" max="1" value="1" step="1">
+      -->
+      </div>
+        <div class="col-2" id="salida" style="padding-top: 24px;">
+
+        <a href="#" id="crearRegistroBtn" class="btn btn-success" style="display: none">Crear Nuevo Registro</a>
+        <table class="table table-hover table-sm" id="tabla">
+          <thead id="tabla-header">
+            <th>Valor</th><th>Cuenta</th>
+          </thead>
+          <tbody id="tabla-body">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<!-- Modal para mostrar detalles del registro -->
+<div class="modal fade" id="modalDetalles" tabindex="-1" aria-labelledby="modalDetallesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalDetallesLabel">Detalles del Registro</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="modalDetallesBody">
+        <!-- Aquí se llenará la información del registro -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal para confirmar la eliminación del registro -->
+<div class="modal fade" id="modalConfirmacion" tabindex="-1" aria-labelledby="modalConfirmacionLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalConfirmacionLabel">Confirmar Eliminación</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="modalConfirmacionBody">
+        <!-- Aquí se llenará la información del registro -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="btnConfirmarEliminar">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="funciones.js"></script>
+  <script src="gDatos.js"></script>
+
+<script>
+  main();
+  async function main() {
+    const urlParams = new URLSearchParams(window.location.search);
+    var vista = urlParams.get('v');
+
+    const alias = await cargarYAML('YAML_alias'); 
+    const yaml_datatables = await cargarYAML('YAML_datatables'); 
+
+    const yaml_funcionesGenerales = await cargarYAML('YAML_funcionesGenerales'); 
+    var yaml_menu = await cargarYAML('YAML_menu'); 
+    yaml_menu = yaml_menu.root;
+
+    const session = await datosUsuario();
+    const nivel=session.id_perfil_usuario;
+    document.getElementById('usuarioNombre').innerHTML="USUARIO: "+session.usuario;
+    document.getElementById('titulo').innerHTML="Gráfico de Burbujas"; 
+    crearMenu(yaml_menu[nivel]); 
+
+    //var proyectos =  await cargarProyectos()  
+    //var seguimientos =  await cargarSeguimientos()  
+    var variables =  await cargarVariables()  
+    var valores =  await cargarValores()  
+    console.log(proyectos)
+
+  }
+
+function dobleCarga(v){
+  cargarValores(v);
+  cargarDatosNube(v);
+}
+</script>
+
+</html>

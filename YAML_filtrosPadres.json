@@ -1,0 +1,55 @@
+{
+    "root": {
+        "v_aaa_cliente": [],
+        "v_aaa_proyecto": [],
+        "v_aaa_seguimiento": {
+            "id_proyecto_seguimiento": {
+                "alias": "Trimestres"
+            },
+            "id_fuente_seguimiento": {
+                "alias": "Fuentes"
+            },
+            "id_tiposeguimiento_fuente": {
+                "alias": "Tipo de Seguimiento"
+            }
+        },
+        "v_aaa_item": [],
+        "v_aaa_texto": {
+            "id_item_texto": {
+                "alias": "Item"
+            }
+        },
+        "v_aaa_variable": {
+            "id_tipovariable_variable": {
+                "alias": "Tipo de Variable"
+            }
+        },
+        "v_aaa_valor": {
+            "id_variable_valor": {
+                "alias": "Variable"
+            }
+        },
+        "v_aaa_textovalor": {
+            "id_variable_valor": {
+                "alias": "Variable"
+            }
+        },
+        "v_aaa_dictextovalor": {
+            "id_variable_valor": {
+                "alias": "Variable"
+            },
+            "id_valor_textovalor": {
+                "alias": "Valor"
+            }
+        },
+        "v_aaa_dicvalor": {
+            "id_variable_valor": {
+                "alias": "Variable"
+            },
+            "id_valor_dicvalor": {
+                "alias": "Valor"
+            }
+        },
+        "v_aaa_tipoidioma": []
+    }
+}

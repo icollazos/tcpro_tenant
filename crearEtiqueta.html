@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <script src="head.js" defer></script>
+
+  <style>
+    .palabra {
+      cursor: pointer;
+      border-radius: 3px;
+      padding-left: 0px;
+      padding-right: 5px; 
+    }
+    .gris {
+      /*color:#aaa;*/
+    }
+  </style>
+
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand text-center" href="#" style="width: 300px;"><span id="titulo"></span></a>
+    <ul class="navbar-nav bg-dark" id="menu"></ul>
+  </nav>
+  <div id="app">
+    <div class="hidden container-fluid d-flex justify-content-center align-items-center vh-100">
+     <div id="report-container" class="container-fluid h-100">
+      <div class="row h-100">
+
+
+
+
+
+
+        <div class="col-12" id="salida" style="padding-top: 24px;">
+
+
+
+          <div class="col">
+            <div class="card">
+              <h5 class="card-header">Entrenamiento del Robot</h5>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-4" style="">
+                    <h4>Variables</h4>
+                    <select class="form-control" id="idvariable" onchange="cargarValores(this.value);"></select>
+                    <h4>Valores ya asignados</h4>
+                    <table class="table" id="tabla">
+                      <thead>
+                        <tr>
+                          <th>Valor</th>
+                          <th>Evidencias</th>
+                        </tr>
+                      </thead>
+                      <tbody id="tabla-body"></tbody>
+                    </table>
+                  </div>
+                  <div class="col-8">
+                    <div class="row">
+                    <h4>Valores disponibles</h4>
+                    <select class="form-control" id="idvalor" onchange="actualizarLPValor(this.value)">
+                      <option>Seleccione...</option>
+                    </select>
+                      <h5 class="card-title">Texto original</h5>
+                      <div id="lpValor"></div>
+                    </div>
+                    <div class="row">
+                      <div class="col">
+                        <label for="" class="form-label">Verifique sus evidencias y grabe</label><br>
+                        <button class="btn btn-primary btn-sm w-100" onclick="enviar()">Grabar</button><br>
+                      </div>
+                      <div class="col">
+                        <label for="" class="form-label">Volver a la tabla principal</label><br>
+                        <a class="btn btn-success btn-sm w-100" href="etiquetador.html">Salir</a>
+                      </div>
+                    </div>
+                    <hr>
+                  </div>
+                  <div class="col">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal para mostrar detalles del registro -->
+<div class="modal fade" id="modalDetalles" tabindex="-1" aria-labelledby="modalDetallesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalDetallesLabel">Detalles del Registro</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="modalDetallesBody">
+        <!-- Aquí se llenará la información del registro -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal para confirmar la eliminación del registro -->
+<div class="modal fade" id="modalConfirmacion" tabindex="-1" aria-labelledby="modalConfirmacionLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalConfirmacionLabel">Confirmar Eliminación</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="modalConfirmacionBody">
+        <!-- Aquí se llenará la información del registro -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="btnConfirmarEliminar">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="funciones.js"></script>
+
+<script>
+  main();
+  async function main() {
+
+    const urlParams = new URLSearchParams(window.location.search);
+    vista="v_aaa_textovalor";
+
+    var idtexto = urlParams.get('idTexto') ?? urlParams.get('idtexto');
+
+    var variables=await cargarVariables(idtexto);
+    console.log("VVV:",variables);
+
+
+    const alias = await cargarYAML('YAML_alias'); 
+    const yaml_datatables = await cargarYAML('YAML_datatables'); 
+
+    const yaml_funcionesGenerales = await cargarYAML('YAML_funcionesGenerales'); 
+    var yaml_menu = await cargarYAML('YAML_menu'); 
+    yaml_menu = yaml_menu.root;
+
+    const session = await datosUsuario();
+    const nivel=session.id_perfil_usuario;
+    document.getElementById('titulo').innerHTML=alias[vista]; 
+    crearMenu(yaml_menu[nivel]); 
+
+    var campos=yaml_datatables.root[vista].campos;
+    l(campos)
+    var argumentos={ vista:vista }
+    var datos= await cargarDatos(argumentos);
+
+    var variables =  await cargarVariables(idtexto);
+    l(variables)
+    var valoresAsignados = await cargarValoresAsignados(idtexto);
+
+    
+  }
+
+
+  async function cargarVariables(idtexto){
+    const url = 'apiCustom/crearEtiqueta.php';
+    const urlParams = new URLSearchParams(window.location.search);
+    idtexto=urlParams.get('idtexto');
+    var idtexto = urlParams.get('idTexto') ?? urlParams.get('idtexto');
+
+    const idselect='idvariable';
+    const params = {
+      idtexto:idtexto,
+      buscar:'variables'
+    };
+    const data = await getData(url, params);
+    document.getElementById(idselect).innerHTML = ''; 
+    console.log("Variables", data)
+    llenarSelect(data,idselect);
+    await cargarValores(0); 
+    await cargarValoresAsignados(id);
+    console.log("variables",data);
+  }
+
+  async function cargarValores(idvariable){
+    const url = 'apiCustom/crearEtiqueta.php';
+    const urlParams = new URLSearchParams(window.location.search);
+    var idtexto = urlParams.get('idTexto') ?? urlParams.get('idtexto');
+    const idselect='idvalor';
+    document.getElementById(idselect).innerHTML = ''; 
+    const params = {
+      idvariable:idvariable,
+      idtexto:idtexto,
+      buscar:'valores'
+    };
+    console.log("VALORES: ",params)
+    const data = await getData(url, params);
+    console.log("VALORES: ",data)
+    llenarValores(data, 'idvalor');
+    await cargarValoresAsignados(idtexto);
+  }
+
+
+  async function enviar(){
+    l("ENVIANDO")
+    const palabras = document.querySelectorAll('.bg-warning');
+    l(palabras);
+    var q=0;
+    const urlParams = new URLSearchParams(window.location.search);
+    var vista = urlParams.get('v');
+    vista="v_aaa_textovalor";
+
+    var argumentos={};
+    //argumentos['idtexto']=<?echo $_GET['idtexto'];?>;
+    argumentos['buscar']='grabar';
+    argumentos['idtexto']=urlParams.get('idTexto') ?? urlParams.get('idtexto');
+    argumentos['idvalor']=document.getElementById('idvalor').value;
+    argumentos['lemapares']={};
+    var a = new Array();
+    for (var i = 0; i < palabras.length   ; i++) {
+      l(palabras[i].getAttribute('value'));
+      a[q]={
+        'id'  : palabras[i].getAttribute('id'),
+        'value' : palabras[i].getAttribute('value')
+      };
+      q++;
+    }
+    argumentos['lemapares']=a;
+    var id;
+    var valor;
+    l("argumentos");
+    l(argumentos);
+    if($("#idvalor").val()==0 || palabras.length==0 ){
+      alert("¡Debes seleccionar un valor y asociarle al menos una palabra!");
+    } else {
+      postData('apiCustom/crearEtiqueta.php', { 
+        argumentos:argumentos
+      })
+      .then(data => {
+        l("Recibiendo Datos Texto")
+        l(data)
+        $('#valor option[value="'+argumentos['idvalor']+'"]').remove();
+        var elementosConClase = document.querySelectorAll('.bg-warning');
+        elementosConClase.forEach(function(elemento) {
+          elemento.classList.remove('bg-warning');
+        });
+        var idvariable=document.getElementById('idvariable').value;
+        cargarValores(idvariable);
+      });     
+    }
+  }
+
+  async function cargarValoresAsignados(idtexto){
+    const url = 'apiCustom/crearEtiqueta.php';
+    var argumentos={};
+    var idvariable=document.getElementById('idvariable').value;
+    const params = {
+      idtexto:idtexto,
+      idvariable:idvariable,
+      buscar:'cargarValoresAsignados'
+    };
+    console.log("PARAMS: ",params);
+    try {
+      const data = await getData(url, params);
+      const tabla = document.getElementById('tabla').getElementsByTagName('tbody')[0];
+      tabla.innerHTML = ''; 
+      var datos=data;
+      for (const clave in datos) {
+        if (datos.hasOwnProperty(clave)) {
+          const fila = tabla.insertRow(); 
+          const celdaClave = fila.insertCell(0); 
+          const celdaValor = fila.insertCell(1); 
+          celdaClave.textContent = clave; 
+          celdaValor.textContent = datos[clave]; 
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function actualizarLPValor(id){
+    const url = 'apiCustom/crearEtiqueta.php';
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    var idtexto = urlParams.get('idTexto') ?? urlParams.get('idtexto');
+    const params = {
+      idvalor:id,
+      idtexto:idtexto,
+      buscar:'lpvalores'
+    };
+    try {
+      const data = await getData(url, params);
+      //console.log("valores",data);
+      llenarLPValores(data);
+      await cargarValoresAsignados(idtexto);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function llenarLPValores(data){
+
+    var lpValor=document.getElementById('lpValor');
+    lpValor.innerHTML=data;
+
+    const palabras = document.querySelectorAll('.palabra');
+    palabras.forEach(function(palabra) {
+      palabra.addEventListener('click', function() {
+        this.classList.toggle('bg-warning');
+      });
+    });
+    /*
+    data.forEach(item => {
+      var el = document.createElement('span');
+        el.textContent = item.descriptor; // Asignar la clave como valor de la opción
+        lpValor.appendChild(el); // Agregar la opción al select
+      });  
+      */
+    }
+
+    async function llenarSelect(data, select){
+      var sel = document.getElementById(select);
+      sel.innerHTML = '';     
+      var optionDefault = document.createElement('option');
+      optionDefault.value = '';
+      optionDefault.textContent = 'Seleccione una opción';
+      sel.appendChild(optionDefault);    
+      data.forEach(item => {
+        var option = document.createElement('option');
+        option.value = item.id; 
+        option.textContent = item.descriptor; 
+        sel.appendChild(option); 
+      });  
+    }
+
+
+    async function llenarValores(data){
+      var sel = document.getElementById('idvalor');
+
+    // Limpiar las opciones existentes (si es necesario)
+    sel.innerHTML = ''; // Opción por defecto se puede mantener si se desea
+
+    // Agregar la opción por defecto
+    var optionDefault = document.createElement('option');
+    optionDefault.value = '';
+    optionDefault.textContent = 'Seleccione una opción';
+    sel.appendChild(optionDefault);
+
+    // Llenar el select con las opciones del array
+    data.forEach(item => {
+      var option = document.createElement('option');
+        option.value = item.id; // Asignar la clave como valor de la opción
+        option.textContent = item.descriptor; // Asignar el valor como texto de la opción
+        sel.appendChild(option); // Agregar la opción al select
+      });  
+  }
+
+  async function cargarDatos(argumentos){
+    l("Cargando datos")
+    fuente='apiCustom/data_datatables.php';
+    var selects = document.getElementsByClassName('fp');
+    const urlParams = new URLSearchParams(window.location.search);
+    const vista='v_aaa_textovalor';
+    const fechaInicial=document.getElementById('fechaInicial').value;
+    const fechaFinal=document.getElementById('fechaFinal').value;
+    const palabra=document.getElementById('palabra').value;
+    const excepto=document.getElementById('excepto').value;
+    var argumentos={
+      vista:vista,
+      fechaInicial:fechaInicial,
+      fechaFinal:fechaFinal,
+      palabra:palabra,
+      excepto:excepto
+    };
+
+    var padres = [];
+    Array.from(selects).forEach((select) => {
+      var a = {}; 
+      a[select.id] = parseInt(select.options[select.selectedIndex].value);
+      padres.push(a); 
+    });
+    argumentos.selects = padres; 
+    l(argumentos);
+
+    try {
+      const data = await postData(fuente, { 
+        argumentos: argumentos
+      });    
+      l("Recibiendo Datos de Datatables");
+      l(data)
+      llenarTabla(data);
+      return data; 
+    } catch (error) {
+      l('Error al cargar datos:', error); 
+    }
+  }
+
+  function llenarTabla(data) {
+    const tablaHeader = document.getElementById('tabla-header'); 
+    const tablaBody = document.getElementById('tabla-body');
+    tablaHeader.innerHTML = ''; 
+    tablaBody.innerHTML = ''; 
+    if (data.length > 0) {
+      const headers = Object.keys(data[0]);
+      const headerRow = document.createElement('tr');
+      headerRow.classList.add('table-info'); 
+      headers.forEach(header => {
+        const th = document.createElement('th');
+        th.textContent = header.charAt(0).toUpperCase() + header.slice(1); 
+        headerRow.appendChild(th);
+      });
+      const thAcciones = document.createElement('th');
+      thAcciones.textContent = "Acciones"; 
+      headerRow.appendChild(thAcciones);
+      const thAccionesEtiqueta = document.createElement('th');
+      tablaHeader.appendChild(headerRow); 
+      data.forEach(item => {
+        l(item);
+        const row = document.createElement('tr');
+        headers.forEach(header => {
+          const cell = document.createElement('td');
+          cell.textContent = item[header]; 
+          row.appendChild(cell);
+        });
+        const cellAcciones = document.createElement('td');
+        
+        const btnEliminar = document.createElement('button');
+        btnEliminar.textContent = 'Eliminar';
+        btnEliminar.classList.add('btn', 'btn-danger', 'btn-sm'); 
+        btnEliminar.onclick = function() {
+          confirmarEliminacion(item); 
+        };
+        
+        const btnCrear = document.createElement('a'); 
+        btnCrear.textContent = 'Agregar';
+        btnCrear.classList.add('btn', 'btn-success', 'btn-sm');
+        btnCrear.href = 'crearEtiqueta.html?idtexto='+item.idtexto_h+'&idseguimiento='+item.ids_h+'&idvariable='+item.idv_h; 
+        btnCrear.onclick = function(event) {
+        };
+
+        cellAcciones.appendChild(btnCrear);
+        cellAcciones.appendChild(btnEliminar);
+
+        row.appendChild(cellAcciones);
+        tablaBody.appendChild(row); 
+      });
+    }
+    new DataTable('#tabla');
+  }
+
+  function confirmarEliminacion(item) {
+    const modalBody = document.getElementById('modalConfirmacionBody');
+    modalBody.innerHTML = ''; 
+    for (const key in item) {
+      if (item.hasOwnProperty(key)) {
+        const p = document.createElement('p');
+        p.textContent = `${key.charAt(0).toUpperCase() + key.slice(1)}: ${item[key]}`;
+        modalBody.appendChild(p);
+      }
+    }    
+    const modal = new bootstrap.Modal(document.getElementById('modalConfirmacion'));
+    modal.show();
+    document.getElementById('btnConfirmarEliminar').onclick = function() {
+      eliminarRegistro(item.id); 
+      modal.hide(); 
+    };
+  }
+
+  async function eliminarRegistro(id) {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const vistaActual = urlParams.get('v'); 
+      l(vistaActual);
+      const response = await fetch('apiCustom/eliminarRegistro.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: id,
+          vistaActual: vistaActual.slice(2) 
+        }),
+      });
+      if (!response.ok) {
+        throw new Error('Error en la eliminación del registro');
+      }
+      const result = await response.json();
+      console.log('Registro eliminado:', result);
+      var argumentos={ vista:vistaActual }
+      var datos= await cargarDatos(argumentos);
+      llenarTabla(datos);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
+  function verDetalles(item) {
+    const modalBody = document.getElementById('modalDetallesBody');
+    modalBody.innerHTML = ''; 
+    const table = document.createElement('table');
+    table.classList.add('table', 'table-bordered');     
+    const tbody = document.createElement('tbody');    
+    for (const key in item) {
+      if (item.hasOwnProperty(key)) {
+        const row = document.createElement('tr');
+        const cellKey = document.createElement('td');
+        cellKey.textContent = key.charAt(0).toUpperCase() + key.slice(1); 
+        row.appendChild(cellKey);
+        const cellValue = document.createElement('td');
+        cellValue.textContent = item[key]; 
+        row.appendChild(cellValue);
+        tbody.appendChild(row);
+      }
+    }    
+    table.appendChild(tbody);    
+    modalBody.appendChild(table);    
+    const modal = new bootstrap.Modal(document.getElementById('modalDetalles'));
+    modal.show();
+  }
+
+
+
+
+  function ejecutarRobot(){
+    l("EJECUTANDO ROBOT");
+    var id;
+    var valor;
+    var idvariable=$("#variable").val();
+    l(idvariable);
+    var argumentos={};
+    l("argumentos");
+    l(argumentos);
+    argumentos['funcionLlamada']="ejecutarRobot";
+    argumentos['idvariable']=idvariable;
+    postData('pry_textoValor_funciones.php', { 
+      argumentos:argumentos
+    })
+    .then(data => {
+      l("Recibiendo Datos robot")
+      l(data)
+      creaSalida();
+    });
+  }
+
+
+
+</script>
+
+</html>

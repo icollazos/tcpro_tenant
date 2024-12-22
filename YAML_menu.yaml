@@ -1,0 +1,100 @@
+##################### Configurador del Menu Navbar
+root: {
+  2: {
+    pri: { 
+      titulo: Principal,
+      items: {
+        #cliente: {alias: Trimestres, f: dt, v: v_aaa_cliente},
+        #proyecto: {alias: Trimestres, f: dt, v: v_aaa_proyecto},
+        #seguimiento: {alias: Seguimientos, f: dt, v: v_aaa_seguimiento},
+        #seguimientoespejo: {alias: Espejo, f: dt, v: v_aaa_seguimientoespejo},
+        item: {alias: Items, f: dt, v: v_aaa_item},
+        texto: {alias: Textos, f: dt, v: v_aaa_texto},
+        variable: {alias: Variables, f: dt, v: v_aaa_variable},
+        valor: {alias: Valores, f: dt, v: v_aaa_valor},
+        #textovalor: {alias: Etiquetador, f: dt, v: v_aaa_textovalor},
+      }
+    },
+    con: { 
+      titulo: Diccionarios,
+      items: {
+        dicvalor: {alias: Evidencias Léxicas, f: dt, v: v_aaa_dicvalor},
+        #dictextovalor: {alias: Evidencias Texto, f: dt, v: v_aaa_dictextovalor},
+      }
+    },
+    rep: { 
+      titulo: Reportes,
+      items: {
+        alertas: {alias: Alertas, f: link, v: alertas.html},
+        dashboard: {alias: Tablero de Control, f: dashboard, v: v_aaa_texto},
+        torta: {alias: Grafico de torta, f: g1, v: v_aaa_proyecto, tipo: pie},
+        barras: {alias: Grafico de barras, f: g1, v: v_aaa_proyecto, tipo: bar},
+        columnas: {alias: Grafico de columnas, f: g1, v: v_aaa_proyecto, tipo: column},
+        #grafo: {alias: Grafo, f: g1, v: v_aaa_lemapar},
+        nube: {alias: Burbujas, f: gNube, v: v_aaa_textovalor},
+        arbol: {alias: Arbol de Categorías, f: gArbol, v: v_aaa_proyecto},
+      }
+    },
+    adm: { 
+      titulo: Administración,
+      items: {
+        usuario: {alias: Usuarios, f: dt, v: v_adm_usuario},
+        apikey: {alias: API Keys, f: dt, v: v_aaa_apikey},
+        #perfil: {alias: Perfiles de usuario, f: dt, v: v_adm_perfil},
+      }
+    },
+    esp: { 
+      titulo: Análisis,
+      items: {
+        robot: {alias: Etiquetador, f: link, v: etiquetador.html},
+        chatbot: {alias: Chatbot, f: link, v: chatbot.html},
+      }
+    },
+  },
+  3: {
+ pri: { 
+      titulo: Principal,
+      items: {
+        #cliente: {alias: Trimestres, f: dt, v: v_aaa_cliente},
+        proyecto: {alias: Trimestres, f: dt, v: v_aaa_proyecto},
+        seguimiento: {alias: Seguimientos, f: dt, v: v_aaa_seguimiento},
+        #seguimientoespejo: {alias: Espejo, f: dt, v: v_aaa_seguimientoespejo},
+        item: {alias: Items, f: dt, v: v_aaa_item},
+        texto: {alias: Textos, f: dt, v: v_aaa_texto},
+        variable: {alias: Variables, f: dt, v: v_aaa_variable},
+        valor: {alias: Valores, f: dt, v: v_aaa_valor},
+        #textovalor: {alias: Etiquetador, f: dt, v: v_aaa_textovalor},
+      }
+    },
+    con: { 
+      titulo: Diccionarios,
+      items: {
+        dicvalor: {alias: Evidencias Léxicas, f: dt, v: v_aaa_dicvalor},
+        #dictextovalor: {alias: Evidencias Texto, f: dt, v: v_aaa_dictextovalor},
+      }
+    },
+    rep: { 
+      titulo: Reportes,
+      items: {
+        torta: {alias: Grafico de torta, f: g1, v: v_aaa_proyecto, tipo: pie},
+        barras: {alias: Grafico de barras, f: g1, v: v_aaa_proyecto, tipo: bar},
+        columnas: {alias: Grafico de columnas, f: g1, v: v_aaa_proyecto, tipo: column},
+        #grafo: {alias: Grafo, f: g1, v: v_aaa_lemapar},
+        nube: {alias: Burbujas, f: gNube, v: v_aaa_textovalor},
+      }
+    },
+    adm: { 
+      titulo: Administración,
+      items: {
+        usuario: {alias: Usuarios, f: dt, v: v_adm_usuario},
+        #perfil: {alias: Perfiles de usuario, f: dt, v: v_adm_perfil},
+      }
+    },
+    esp: { 
+      titulo: Análisis,
+      items: {
+        robot: {alias: Etiquetador, f: link, v: etiquetador.html},
+      }
+    },
+  }
+}
